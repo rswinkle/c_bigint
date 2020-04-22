@@ -14,7 +14,7 @@ int cbi_init(cbigint* n);
 void cbi_free(void* n);
 
 // return dst?
-int cbi_copy(cbigint* dst, cbigint* src);
+int cbi_copy(cbigint* dest, cbigint* src);
 
 int cbi_compare(cbigint* a, cbigint* b);
 int cbi_compare_mag(cbigint* a, cbigint* b);
