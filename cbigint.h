@@ -4,6 +4,12 @@
 
 #include "cvector_long.h"
 
+/* currently only support 64 bit */
+#define CBI_POWER 9
+#define CBI_BASE 1000000000
+
+#define cbi_maxstrlen(n) ((n)->mag.size*CBI_POWER+2)
+
 typedef struct cbigint
 {
 	cvector_long mag;
@@ -20,16 +26,16 @@ int cbi_compare(cbigint* a, cbigint* b);
 int cbi_compare_mag(cbigint* a, cbigint* b);
 
 // hmm
-void cbi_zero(cbigint* n);
-void cbi_set(cbigint* n, long a);
+int cbi_zero(cbigint* n);
+int cbi_set(cbigint* n, long a);
 
 void cbi_negate(cbigint* n);
 
 // return dst?
 int cbi_fromcstr(cbigint* n, const char* s);
 
-// if out is NULL, fill len with size buffer has to be including '\0'
-void cbi_tocstr(cbigint* n, char* out, int* len);
+size_t cbi_strbuf_sz(cbigint* n);
+char* cbi_tocstr(cbigint* n, char* out);
 
 
 cbigint* cbi_add(cbigint* s, cbigint* a, cbigint* b);
