@@ -304,8 +304,96 @@ cbigint* cbi_add(cbigint* s, cbigint* a_in, cbigint* b_in)
 }
 
 
-cbigint* cbi_sub(cbigint* s, cbigint* a, cbigint* b)
+cbigint* cbi_sub(cbigint* d, cbigint* a_in, cbigint* b_in)
 {
+	cbigint a, b;
+	cbi_copy(&a, a_in);
+	cbi_copy(&b, b_in);
+
+	d->mag.size = 0;
+
+	// negative - positive = negate(positive + positive)
+	if (a.sign == -1 && b.sign == 1) {
+		a.sign = 1;
+		cbi_add(d, &a, &b);
+		d->sign = -1;
+		cvec_free_long(&a.mag);
+		cvec_free_long(&b.mag);
+		return d;
+	}
+
+	// positive - negative = positive + positive
+	if (a.sign == 1 && b.sign == -1) {
+		b.sign = 1;
+		cbi_add(d, &a, &b);
+		cvec_free_long(&a.mag);
+		cvec_free_long(&b.mag);
+		return d;
+	}
+
+
+	cbigint t;
+	int final_sign = 0;
+
+	// both pos or neg
+	if (cbi_compare(&a, &b) < 0) {
+		final_sign = (b.sign == 1) ? -1 : 1;
+		t = a;
+		a = b;
+		b = t;
+	} else {
+		final_sign = a.sign;
+	}
+
+	long a_digit, b_digit;
+	long a_i = a.mag.size-1, b_i = b.mag.size-1;
+	int j;
+	for (; a_i >= 0 && b_i >= 0; --a_i, --b_i) {
+		a_digit = a.mag.a[a_i];
+		b_digit = b.mag.a[b_i];
+
+		if (a_digit < b_digit) {
+			int j = a_i;
+			while (j > 0) {
+				j--;
+				if (a.mag.a[j] != 0) {
+					a.mag.a[j]--;
+					j--;
+					while (j != a_i) {
+						a.mag.a[j--] += CBI_BASE-1;
+					}
+					// TODO not strictly necessary
+					a.mag.a[a_i] += CBI_BASE;
+
+					a_digit += CBI_BASE;
+					break;
+				}
+			}
+		}
+
+		cvec_insert_long(&d->mag, 0, a_digit - b_digit);
+	}
+
+	// add rest of a
+	for ( ; a_i >= 0; --a_i) {
+		cvec_insert_long(&d->mag, 0, a.mag.a[a_i]);
+	}
+
+	// remove leading 0's (change to < size-1 for proper 0?)
+	int i = 0;
+	while (i < d->mag.size && !d->mag.a[i])
+		i++;
+	cvec_erase_long(&d->mag, 0, i-1);
+
+	// TODO for now size 0 and size 1 with number == 0 are both
+	// representations of 0
+	d->sign = (d->mag.size) ? final_sign : 0;
+
+
+	cvec_free_long(&a.mag);
+	cvec_free_long(&b.mag);
+
+	return d;
 }
 
 cbigint* cbi_mult(cbigint* s, cbigint* a, cbigint* b)
