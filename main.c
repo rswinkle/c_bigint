@@ -1,49 +1,63 @@
 
-#include "cbigint.h"
+#include "cbigint_tests.c"
 
 #include <stdio.h>
+#include <CUnit/Automated.h>
 
 
-int main(int argc, char** argv)
+extern void add_test();
+extern void sub_test();
+
+
+
+
+CU_TestInfo add_tests[] = {
+	{ "add_test",           add_test },
+	CU_TEST_INFO_NULL
+};
+
+CU_TestInfo sub_tests[] = {
+	{ "sub_test",        sub_test },
+	CU_TEST_INFO_NULL
+};
+
+
+
+
+CU_SuiteInfo cbigint_suites[] = {
+#ifndef OLD_CUNIT
+	{ "add_tests",     NULL, NULL, NULL, NULL, add_tests },
+	{ "sub_tests",     NULL, NULL, NULL, NULL, sub_tests },
+#else
+	{ "add_tests",     NULL, NULL, add_tests },
+	{ "sub_tests",     NULL, NULL, sub_tests },
+#endif
+	CU_SUITE_INFO_NULL
+};
+
+
+
+int main()
 {
-	char s_a[] = "999";
-	char s_b[] = "-109";
-	char s_3[] = "3";
-	char s_100[] = "100";
-	char s_10[] = "10";
+	CU_ErrorCode error;
+	error = CU_initialize_registry();
+	if (error != CUE_SUCCESS) {
+		fprintf(stderr, "Failed to initialize registry\n");
+		return CU_get_error();
+	}
 
-	cbigint a = { 0 }, b = { 0 };
-	cbigint three, hundred, ten;
+	error = CU_register_suites(cbigint_suites);
 
-	cbi_fromcstr(&a, s_a);
-	cbi_fromcstr(&b, s_b);
+	if (error != CUE_SUCCESS) {
+		fprintf(stderr, "Failed to register test suite\n");
+		return CU_get_error();
+	}
 
-	cbi_initfromcstr(&three, s_3);
-	cbi_initfromcstr(&hundred, s_100);
-	cbi_initfromcstr(&ten, s_10);
+	CU_automated_run_tests();
+	fprintf(stdout, "CU_get_error() returned %d\n", CU_get_error());
 
-	cbigint p = { 0 };
-	char buf[1024];
+	CU_cleanup_registry();
 
-	cbi_add(&p, &b, &a);
-	printf("%s + %s = %s\n", s_a, s_b, cbi_tocstr(&p, buf));
+	return CU_get_error();
 
-	cbi_sub(&p, &b, &a);
-	printf("%s - %s = %s\n", s_b, s_a, cbi_tocstr(&p, buf));
-	cbi_mult(&p, &three, &a);
-	printf("%s * %s = %s\n", s_3, s_a, cbi_tocstr(&p, buf));
-	cbi_mult(&p, &a, &three);
-	printf("%s * %s = %s\n", s_a, s_3, cbi_tocstr(&p, buf));
-	cbi_mult(&p, &hundred, &ten);
-	printf("%s * %s = %s\n", s_100, s_10, cbi_tocstr(&p, buf));
-
-
-	cbi_free(&a);
-	cbi_free(&b);
-	cbi_free(&p);
-	cbi_free(&three);
-	cbi_free(&hundred);
-	cbi_free(&ten);
-
-	return 0;
 }
