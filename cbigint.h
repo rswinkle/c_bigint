@@ -31,8 +31,8 @@ int cbi_set(cbigint* n, long a);
 
 void cbi_negate(cbigint* n);
 
-// return dst?
-int cbi_fromcstr(cbigint* n, const char* s);
+cbigint* cbi_initfromcstr(cbigint* n, const char* s);
+cbigint* cbi_fromcstr(cbigint* n, const char* s);
 
 size_t cbi_strbuf_sz(cbigint* n);
 char* cbi_tocstr(cbigint* n, char* out);

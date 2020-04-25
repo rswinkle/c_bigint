@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <string.h>
 
+// cbi_init0() ?
 int cbi_init(cbigint* n)
 {
 	if (!cvec_long(&n->mag, 0, 0)) {
@@ -103,8 +104,14 @@ void cbi_negate(cbigint* n)
 	n->sign = -n->sign;
 }
 
-// return dest?
-int cbi_fromcstr(cbigint* n, const char* s)
+
+cbigint* cbi_initfromcstr(cbigint* n, const char* s)
+{
+	cvec_long(&n->mag, 0, 0);
+	return cbi_fromcstr(n, s);
+}
+
+cbigint* cbi_fromcstr(cbigint* n, const char* s)
 {
 	if (!s) {
 		return NULL;
@@ -112,7 +119,7 @@ int cbi_fromcstr(cbigint* n, const char* s)
 
 	// TODO correctly handle sign
 	int sign = 1;
-	char* p = s;
+	char* p = (char*)s;
 	if (s[0] == '-') {
 		sign = -1;
 		p++;
@@ -146,7 +153,7 @@ int cbi_fromcstr(cbigint* n, const char* s)
 	if (!len) {
 		free(buf);
 		cbi_zero(n);
-		return 1;;
+		return n;
 	}
 
 
@@ -169,7 +176,7 @@ int cbi_fromcstr(cbigint* n, const char* s)
 	while (start > 0) {
 		if (!cvec_insert_long(&n->mag, 0, atol(&p[start]))) {
 			free(buf);
-			return 0;
+			return NULL;
 		}
 		p[start] = 0; // cut off segment that was just converted
 		start -= CBI_POWER;
@@ -178,12 +185,12 @@ int cbi_fromcstr(cbigint* n, const char* s)
 	if (start != -CBI_POWER) {
 		if (!cvec_insert_long(&n->mag, 0, atol(&p[0]))) {
 			free(buf);
-			return 0;
+			return NULL;
 		}
 	}
 
 	free(buf);
-	return 1;
+	return n;
 
 }
 
@@ -353,7 +360,7 @@ cbigint* cbi_sub(cbigint* d, cbigint* a_in, cbigint* b_in)
 		b_digit = b.mag.a[b_i];
 
 		if (a_digit < b_digit) {
-			int j = a_i;
+			j = a_i;
 			while (j > 0) {
 				j--;
 				if (a.mag.a[j] != 0) {
@@ -396,12 +403,81 @@ cbigint* cbi_sub(cbigint* d, cbigint* a_in, cbigint* b_in)
 	return d;
 }
 
-cbigint* cbi_mult(cbigint* s, cbigint* a, cbigint* b)
+cbigint* cbi_mult(cbigint* p, cbigint* a_in, cbigint* b_in)
 {
+	cbigint a, b;
+
+	if (!a.sign || !b.sign) {
+		cbi_zero(p);
+		return p;
+	}
+
+	cbi_copy(&a, a_in);
+	cbi_copy(&b, b_in);
+
+	// TODO sooo, all the operations require p to be initialized I guess
+	cbi_zero(p); // ?
+	
+	cbigint t;
+	// algorithm doesn't work if a ("top number") is shorter than b
+	// swapping is easier than changing the alg to work either way
+	if (a.mag.size < b.mag.size) {
+		t = a;
+		a = b;
+		b = t;
+	}
+
+	cbigint r;
+	cvec_long(&r.mag, 0, a.mag.size+b.mag.size);
+	r.sign = 1;   // not sure if necessary
+
+	long temp, carry, a_digit, b_digit;
+	int i, j, shift = 0;
+	for (i=b.mag.size-1; i>=0; --i, ++shift) {
+		r.mag.size = 0;
+		b_digit = b.mag.a[i];
+		carry = 0;
+
+		// perform the shift
+		// since r is empty, push works as well as insert(0)
+		for (int k=0; k<shift; ++k) {
+			cvec_push_long(&r.mag, 0);
+		}
+
+		for (j=a.mag.size-1; j>=0; --j) {
+			a_digit = a.mag.a[j];
+			temp = a_digit * b_digit + carry;
+			if (temp >= CBI_BASE) {
+				carry = temp / CBI_BASE;
+				temp %= CBI_BASE;
+			} else {
+				carry = 0;
+			}
+
+			cvec_insert_long(&r.mag, 0, temp);
+		}
+
+		if (carry) {
+			cvec_insert_long(&r.mag, 0, carry);
+		}
+
+		cbi_add(p, p, &r);
+	}
+
+	p->sign = 1;
+	if (a.sign != b.sign)
+		p->sign = -1;
+
+	cvec_free_long(&r.mag);
+	cvec_free_long(&a.mag);
+	cvec_free_long(&b.mag);
+
+	return p;
 }
 
 cbigint* cbi_div(cbigint* s, cbigint* a, cbigint* b)
 {
+	return NULL;
 }
 
 
