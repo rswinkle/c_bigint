@@ -371,9 +371,9 @@ cbigint* cbi_sub(cbigint* d, cbigint* a_in, cbigint* b_in)
 				j--;
 				if (a.mag.a[j] != 0) {
 					a.mag.a[j]--;
-					j--;
+					j++;
 					while (j != a_i) {
-						a.mag.a[j--] += CBI_BASE-1;
+						a.mag.a[j++] += CBI_BASE-1;
 					}
 					// TODO not strictly necessary
 					a.mag.a[a_i] += CBI_BASE;

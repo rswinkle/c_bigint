@@ -107,6 +107,7 @@ cbigint* cbi_read(cbigint* n, FILE* input)
 				return NULL;
 			}
 			string = tmp_str;
+			max_len *= 2;
 		}
 
 		string[i] = temp;
@@ -124,7 +125,9 @@ cbigint* cbi_read(cbigint* n, FILE* input)
 void arithmetic_test()
 {
 	char filename[100];
-	char num_buf[1024];
+
+	char* num_buf = malloc(1 << 20);
+	//char num_buf[1024];
 
 	FILE* fin;
 	FILE* fout = stdout;
@@ -139,9 +142,9 @@ void arithmetic_test()
 	cbi_init(&tmp1);
 	cbi_init(&tmp2);
 
-	int n_files = 1;
+	int n_files = 5;
 
-	for (int i=1; i<=n_files; ++i) {
+	for (int i=5; i<=n_files; ++i) {
 		snprintf(filename, 100, "./in%d", i);
 
 		//printf("'%s'\n", filename);
@@ -184,6 +187,15 @@ void arithmetic_test()
 		cbi_mult(&tmp2, &b, &b);
 		fprintf(fout, "%s\n\n", cbi_tocstr(&tmp2, num_buf));
 
+		// TODO ideas
+		// cbi_powl(cbigint* a, long x);
+		// cbi_pow(cbigint* a, cbigint* x);
+		//
+		// cbi_addl/subl/multl(cbi* r, cbi* a, long b)
+		//
+		// cbi_abs(n) as a macro
+		//
+		//
 		// a^4
 		cbi_mult(&tmp1, &tmp1, &tmp1);
 
@@ -201,6 +213,7 @@ void arithmetic_test()
 
 	}
 
+	free(num_buf);
 	cbi_free(&a);
 	cbi_free(&b);
 	cbi_free(&c);
@@ -264,6 +277,8 @@ char* freadstring(FILE* input, int delim, size_t max_len)
 					return NULL;
 				}
 				string = tmp_str;
+				// TODO fix in c_utils
+				max_len *= 2;
 			} else {
 				break;
 			}
