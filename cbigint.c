@@ -343,11 +343,17 @@ cbigint* cbi_sub(cbigint* d, cbigint* a_in, cbigint* b_in)
 	int final_sign = 0;
 
 	// both pos or neg
-	if (cbi_compare(&a, &b) < 0) {
+	int cmp = cbi_compare_mag(&a, &b);
+	if (cmp < 0) {
 		final_sign = (b.sign == 1) ? -1 : 1;
 		t = a;
 		a = b;
 		b = t;
+	} else if (!cmp) {
+		cbi_zero(d);
+		cvec_free_long(&a.mag);
+		cvec_free_long(&b.mag);
+		return d;
 	} else {
 		final_sign = a.sign;
 	}
@@ -386,16 +392,16 @@ cbigint* cbi_sub(cbigint* d, cbigint* a_in, cbigint* b_in)
 		cvec_insert_long(&d->mag, 0, a.mag.a[a_i]);
 	}
 
-	// remove leading 0's (change to < size-1 for proper 0?)
+	// remove leading 0's
 	int i = 0;
-	while (i < d->mag.size && !d->mag.a[i])
+	while (i < d->mag.size-1 && !d->mag.a[i])
 		i++;
-	cvec_erase_long(&d->mag, 0, i-1);
+	if (i)
+		cvec_erase_long(&d->mag, 0, i-1);
 
 	// TODO for now size 0 and size 1 with number == 0 are both
 	// representations of 0
-	d->sign = (d->mag.size) ? final_sign : 0;
-
+	d->sign = (d->mag.size == 1 && !d->mag.a[0]) ? 0 : final_sign;
 
 	cvec_free_long(&a.mag);
 	cvec_free_long(&b.mag);

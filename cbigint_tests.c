@@ -5,7 +5,12 @@
 
 #include <CUnit/Automated.h>
 #include <stdio.h>
+#include <ctype.h>
+#include <assert.h>
 
+// copied from my c_utils
+char* freadline(FILE* input);
+char* freadstring(FILE* input, int delim, size_t max_len);
 
 /* add tests */
 void add_test()
@@ -51,8 +56,227 @@ void sub_test()
 
 }
 
+// on immediate error, do I clear/zero out n?
+cbigint* cbi_read(cbigint* n, FILE* input)
+{
+	char* string = NULL, *tmp_str = NULL;
+	int temp;
+	int i = 0;
+
+	if (feof(input)) {
+		return NULL;
+	}
+
+	int max_len = 4096;
+
+	while (isspace(temp = fgetc(input)));
+
+	if (temp != '-' && temp != '+' && !isdigit(temp)) {
+		return NULL;
+	}
+
+	if (!(string = (char*)malloc(max_len+1)))
+		return NULL;
+
+	string[i++] = temp;
+	
+	while (1) {
+		temp = fgetc(input);
+
+		if (temp == EOF || !isdigit(temp)) {
+			if (!i) {
+				free(string);
+				return NULL;
+			}
+			tmp_str = (char*)realloc(string, i+1);
+			if (!tmp_str) {
+				free(string);
+				return NULL;
+			}
+			string = tmp_str;
+
+			// no-op if temp is EOF?
+			ungetc(temp, input);
+			break;
+		}
+
+		if (i == max_len) {
+			tmp_str = (char*)realloc(string, max_len*2+1);
+			if (!tmp_str) {
+				free(string);
+				return NULL;
+			}
+			string = tmp_str;
+		}
+
+		string[i] = temp;
+		i++;
+	}
+	string[i] = '\0';
+
+	// unfortunately this re-checks for valid string
+	n = cbi_fromcstr(n, string);
+	free(string);
+
+	return n;
+}
+
+void arithmetic_test()
+{
+	char filename[100];
+	char num_buf[1024];
+
+	FILE* fin;
+	FILE* fout = stdout;
+
+	//char three[] = "3";
+	//char two[] = "2";
+
+	cbigint a, b, c, tmp1, tmp2;
+	cbi_init(&a);
+	cbi_init(&b);
+	cbi_init(&c);
+	cbi_init(&tmp1);
+	cbi_init(&tmp2);
+
+	int n_files = 1;
+
+	for (int i=1; i<=n_files; ++i) {
+		snprintf(filename, 100, "./in%d", i);
+
+		//printf("'%s'\n", filename);
+
+		if (!(fin = fopen(filename, "r"))) {
+			perror("failed to open file");
+			assert(fin);
+		}
+
+		cbi_read(&a, fin);
+		cbi_read(&b, fin);
+
+		fprintf(fout, "%s\n\n", cbi_tocstr(&a, num_buf));
+		fprintf(fout, "%s\n\n", cbi_tocstr(&b, num_buf));
+
+		cbi_add(&c, &a, &b);
+		fprintf(fout, "%s\n\n", cbi_tocstr(&c, num_buf));
+
+		cbi_sub(&c, &a, &b);
+		fprintf(fout, "%s\n\n", cbi_tocstr(&c, num_buf));
+
+		cbi_sub(&c, &a, &a);
+		fprintf(fout, "%s\n\n", cbi_tocstr(&c, num_buf));
+
+		cbi_set(&tmp1, 3);
+		cbi_mult(&tmp1, &a, &tmp1);
+
+		cbi_set(&tmp2, 2);
+		cbi_mult(&tmp2, &tmp2, &b);
+
+		cbi_sub(&c, &tmp1, &tmp2);
+		fprintf(fout, "%s\n\n", cbi_tocstr(&c, num_buf));
+
+		cbi_mult(&c, &a, &b);
+		fprintf(fout, "%s\n\n", cbi_tocstr(&c, num_buf));
+
+		cbi_mult(&tmp1, &a, &a);
+		fprintf(fout, "%s\n\n", cbi_tocstr(&tmp1, num_buf));
+
+		cbi_mult(&tmp2, &b, &b);
+		fprintf(fout, "%s\n\n", cbi_tocstr(&tmp2, num_buf));
+
+		// a^4
+		cbi_mult(&tmp1, &tmp1, &tmp1);
+
+		cbi_set(&c, 9);
+		cbi_mult(&tmp1, &tmp1, &c);
+
+		// b^5
+		cbi_mult(&tmp2, cbi_mult(&tmp2, &tmp2, &tmp2), &b);
+		cbi_set(&c, 16);
+		cbi_mult(&tmp2, &tmp2, &c);
+
+		// 9a^4 + 16b^5
+		cbi_add(&c, &tmp1, &tmp2);
+		fprintf(fout, "%s\n\n", cbi_tocstr(&c, num_buf));
+
+	}
+
+	cbi_free(&a);
+	cbi_free(&b);
+	cbi_free(&c);
+	cbi_free(&tmp1);
+	cbi_free(&tmp2);
+
+}
 
 
+char* freadline(FILE* input)
+{
+	return freadstring(input, '\n', 0);
+}
+
+/** Reads and returns a newly allocated string from file.  It reads
+ * until delim is reached or max_len characters are read.  Delim is not
+ * included in the string.  max_len refers to the resulting strlen, and
+ * the string is always null terminated.  If max_len is 0, freadstring
+ * will continue to read, reallocated as necessary, until delim is hit
+ * or allocation fails */
+char* freadstring(FILE* input, int delim, size_t max_len)
+{
+	char* string = NULL, *tmp_str = NULL;
+	int temp;
+	int i=0;
+	int inf = 0;
+
+	if (feof(input))
+		return NULL;
+
+	if (!max_len) {
+		inf = 1;
+		max_len = 4096;
+	}
+
+	if(!(string = (char*)malloc(max_len+1)))
+		return NULL;
+
+	while (1) {
+		temp = fgetc(input);
+
+		if (temp == EOF || temp == delim) {
+			if (!i && temp != delim) { //allow for delim == EOF
+				free(string);
+				return NULL;
+			}
+			tmp_str = (char*)realloc(string, i+1);
+			if (!tmp_str) {
+				free(string);
+				return NULL;
+			}
+			string = tmp_str;
+			break;
+		}
+
+		if (i == max_len) {
+			if (inf) {
+				tmp_str = (char*)realloc(string, max_len*2+1);
+				if (!tmp_str) {
+					free(string);
+					return NULL;
+				}
+				string = tmp_str;
+			} else {
+				break;
+			}
+		}
+
+		string[i] = temp;
+		i++;
+	}
+	string[i] = '\0';
+
+
+	return string;
+}
 
 
 

@@ -21,6 +21,12 @@ CU_TestInfo sub_tests[] = {
 	CU_TEST_INFO_NULL
 };
 
+CU_TestInfo general_tests[] = {
+	{ "arithmetic",        arithmetic_test },
+	CU_TEST_INFO_NULL
+};
+
+
 
 
 
@@ -28,9 +34,11 @@ CU_SuiteInfo cbigint_suites[] = {
 #ifndef OLD_CUNIT
 	{ "add_tests",     NULL, NULL, NULL, NULL, add_tests },
 	{ "sub_tests",     NULL, NULL, NULL, NULL, sub_tests },
+	{ "general_tests",     NULL, NULL, NULL, NULL, general_tests },
 #else
 	{ "add_tests",     NULL, NULL, add_tests },
 	{ "sub_tests",     NULL, NULL, sub_tests },
+	{ "general_tests",     NULL, NULL, general_tests },
 #endif
 	CU_SUITE_INFO_NULL
 };
