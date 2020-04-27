@@ -540,17 +540,38 @@ cbigint* cbi_div(cbigint* d, cbigint* a_in, cbigint* b_in)
 
 
 // modifies first parameter and returns it, equivalent to set + op
+// TODO optimization path for these funcs if x is < CBI_BASE?
 cbigint* cbi_addl(cbigint* s, long x)
 {
+	cbigint a = { 0 };
+	cbi_set(&a, x);
+	cbi_add(s, s, &a);
+	cvec_free_long(&a->mag);
+	return s;
 }
 cbigint* cbi_subl(cbigint* d, long x)
 {
+	cbigint a = { 0 };
+	cbi_set(&a, x);
+	cbi_sub(d, d, &a);
+	cvec_free_long(&a->mag);
+	return d;
 }
 cbigint* cbi_multl(cbigint* p, long x)
 {
+	cbigint a = { 0 };
+	cbi_set(&a, x);
+	cbi_mult(p, p, &a);
+	cvec_free_long(&a->mag);
+	return p;
 }
 cbigint* cbi_divl(cbigint* d, long x)
 {
+	cbigint a = { 0 };
+	cbi_set(&a, x);
+	cbi_div(d, d, &a);
+	cvec_free_long(&a->mag);
+	return d;
 }
 
 
