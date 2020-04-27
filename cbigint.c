@@ -495,9 +495,47 @@ cbigint* cbi_mult(cbigint* p, cbigint* a_in, cbigint* b_in)
 	return p;
 }
 
-cbigint* cbi_div(cbigint* d, cbigint* a, cbigint* b)
+cbigint* cbi_div(cbigint* d, cbigint* a_in, cbigint* b_in)
 {
-	return NULL;
+	cbigint a, b;
+
+
+	// division by 0
+	if (!b_in->sign) {
+		return NULL;
+	}
+
+	int cmp = cbi_compare_mag(a_in, b_in);
+	if (!a_in->sign || cmp < 0) {
+		cbi_zero(&d);
+		return d;
+	}
+
+	d->mag.size = 0;
+	d->sign = 1;
+	if (a_in->sign != b_in->sign) {
+		d->sign = -1;
+	}
+
+	if (!cmp) {
+		cvec_push_long(&d->mag, 1);
+		return d;
+	}
+
+	cbi_copy(&a, a_in);
+	cbi_copy(&b, b_in);
+
+
+	//TODO There's got to be a better/more efficient way
+	//than traditional/old school long division.  I feel like
+	//there is some simpler-to-program equivalent on the ti
+	//of my brain
+
+
+	cvec_free_long(&a->mag);
+	cvec_free_long(&b->mag);
+
+	return d;
 }
 
 
