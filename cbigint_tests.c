@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <assert.h>
+#include <limits.h>
 
 // copied from my c_utils
 char* freadline(FILE* input);
@@ -50,6 +51,32 @@ void add_test()
 	cbi_free(&c);
 }
 
+void set_test()
+{
+	cbigint a = { 0 };
+	cbigint b = { 0 };
+
+	cbi_set(&a, 12345);
+
+	char buf[1000];
+	cbi_tocstr(&a, buf);
+
+	CU_ASSERT_STRING_EQUAL("12345", buf);
+
+	long t = LONG_MAX - 100;
+	cbi_set(&a, 123456789012345678);
+
+	cbi_set(&b, 10000000000);
+	cbi_add(&a, &a, &b);
+
+	cbi_tocstr(&a, buf);
+	CU_ASSERT_STRING_EQUAL("123456799012345678", buf);
+
+	//printf("set\n%s\n\n", buf);
+
+	cbi_free(&a);
+	cbi_free(&b);
+}
 
 void sub_test()
 {
@@ -142,9 +169,9 @@ void arithmetic_test()
 	cbi_init(&tmp1);
 	cbi_init(&tmp2);
 
-	int n_files = 5;
+	int n_files = 1;
 
-	for (int i=5; i<=n_files; ++i) {
+	for (int i=1; i<=n_files; ++i) {
 		snprintf(filename, 100, "./in%d", i);
 
 		//printf("'%s'\n", filename);

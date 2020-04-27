@@ -89,12 +89,22 @@ int cbi_zero(cbigint* n)
 // TODO change to using uint64_t?  or unsigned long?
 int cbi_set(cbigint* n, long a)
 {
+	// TODO error if a > CBI_BASE, have to break up
 	n->mag.size = 0;
+	n->sign = 0;
+	if (!a)
+		return cvec_push_long(&n->mag, 0);
+
+	n->sign = 1;
 	if (a < 0) {
+		a = -a;
 		n->sign = -1;
-		return cvec_push_long(&n->mag, -a);
 	}
-	n->sign = a > 0;
+	if (a > CBI_BASE) {
+		if (!cvec_push_long(&n->mag, a/CBI_BASE))
+			return 0;
+		a %= CBI_BASE;
+	}
 	return cvec_push_long(&n->mag, a);
 }
 
@@ -310,7 +320,6 @@ cbigint* cbi_add(cbigint* s, cbigint* a_in, cbigint* b_in)
 	return s;
 }
 
-
 cbigint* cbi_sub(cbigint* d, cbigint* a_in, cbigint* b_in)
 {
 	cbigint a, b;
@@ -452,6 +461,11 @@ cbigint* cbi_mult(cbigint* p, cbigint* a_in, cbigint* b_in)
 
 		for (j=a.mag.size-1; j>=0; --j) {
 			a_digit = a.mag.a[j];
+
+			// This line is the limiting factor for CBI_BASE
+			// CBI_BASE^2 < LONG_MAX must hold.  If sizeof(long) == 8
+			// 10^9 is the largest power of 10 that remains true.
+			// It'd be 10^4 for a 32-bit long
 			temp = a_digit * b_digit + carry;
 			if (temp >= CBI_BASE) {
 				carry = temp / CBI_BASE;
@@ -481,12 +495,25 @@ cbigint* cbi_mult(cbigint* p, cbigint* a_in, cbigint* b_in)
 	return p;
 }
 
-cbigint* cbi_div(cbigint* s, cbigint* a, cbigint* b)
+cbigint* cbi_div(cbigint* d, cbigint* a, cbigint* b)
 {
 	return NULL;
 }
 
 
+// modifies first parameter and returns it, equivalent to set + op
+cbigint* cbi_addl(cbigint* s, long x)
+{
+}
+cbigint* cbi_subl(cbigint* d, long x)
+{
+}
+cbigint* cbi_multl(cbigint* p, long x)
+{
+}
+cbigint* cbi_divl(cbigint* d, long x)
+{
+}
 
 
 
