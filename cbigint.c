@@ -509,7 +509,7 @@ cbigint* cbi_div(cbigint* d, cbigint* a_in, cbigint* b_in)
 
 	int cmp = cbi_compare_mag(a_in, b_in);
 	if (!a_in->sign || cmp < 0) {
-		cbi_zero(&d);
+		cbi_zero(d);
 		return d;
 	}
 
@@ -534,8 +534,8 @@ cbigint* cbi_div(cbigint* d, cbigint* a_in, cbigint* b_in)
 	//of my brain
 
 
-	cvec_free_long(&a->mag);
-	cvec_free_long(&b->mag);
+	cvec_free_long(&a.mag);
+	cvec_free_long(&b.mag);
 
 	return d;
 }
@@ -559,18 +559,18 @@ cbigint* cbi_powl(cbigint* e, cbigint* a, unsigned long x)
 
 	e->mag.size = 0;
 	e->sign = 1;
-	cvec_insert_array_long(&e->mag, 0, a.mag.a, a.mag.size);
+	cvec_insert_array_long(&e->mag, 0, a->mag.a, a->mag.size);
 	if (x == 1) {
 		return e;
 	}
 	
 	int parity = x & 0x1;
 	while (x > 1) {
-		cvec_mult(&e, &e, &e);
+		cbi_mult(e, e, e);
 		x >>= 1;
 	}
 	if (parity)
-		cvec_mult(&e, &e, &a);
+		cbi_mult(e, e, a);
 
 	return e;
 }
@@ -585,7 +585,7 @@ cbigint* cbi_addl(cbigint* s, long x)
 	cbigint a = { 0 };
 	cbi_set(&a, x);
 	cbi_add(s, s, &a);
-	cvec_free_long(&a->mag);
+	cvec_free_long(&a.mag);
 	return s;
 }
 cbigint* cbi_subl(cbigint* d, long x)
@@ -593,7 +593,7 @@ cbigint* cbi_subl(cbigint* d, long x)
 	cbigint a = { 0 };
 	cbi_set(&a, x);
 	cbi_sub(d, d, &a);
-	cvec_free_long(&a->mag);
+	cvec_free_long(&a.mag);
 	return d;
 }
 cbigint* cbi_multl(cbigint* p, long x)
@@ -601,7 +601,7 @@ cbigint* cbi_multl(cbigint* p, long x)
 	cbigint a = { 0 };
 	cbi_set(&a, x);
 	cbi_mult(p, p, &a);
-	cvec_free_long(&a->mag);
+	cvec_free_long(&a.mag);
 	return p;
 }
 cbigint* cbi_divl(cbigint* d, long x)
@@ -609,7 +609,7 @@ cbigint* cbi_divl(cbigint* d, long x)
 	cbigint a = { 0 };
 	cbi_set(&a, x);
 	cbi_div(d, d, &a);
-	cvec_free_long(&a->mag);
+	cvec_free_long(&a.mag);
 	return d;
 }
 

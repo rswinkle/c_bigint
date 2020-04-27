@@ -169,9 +169,9 @@ void arithmetic_test()
 	cbi_init(&tmp1);
 	cbi_init(&tmp2);
 
-	int n_files = 1;
+	int n_files = 5;
 
-	for (int i=1; i<=n_files; ++i) {
+	for (int i=5; i<=n_files; ++i) {
 		snprintf(filename, 100, "./in%d", i);
 
 		//printf("'%s'\n", filename);
