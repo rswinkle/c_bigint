@@ -218,8 +218,6 @@ void arithmetic_test()
 		// cbi_powl(cbigint* a, long x);
 		// cbi_pow(cbigint* a, cbigint* x);
 		//
-		// cbi_addl/subl/multl(cbi* r, cbi* a, long b)
-		//
 		// cbi_abs(n) as a macro
 		//
 		//

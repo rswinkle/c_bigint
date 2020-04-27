@@ -77,6 +77,8 @@ int cbi_compare_mag(cbigint* a, cbigint* b)
 	return 0;
 }
 
+// can/should I use the comma operator to "return" n?
+#define cbi_abs(n) (((n)->sign = (n)->sign ? 1 : 0), n)
 
 // hmm return int, could fail
 int cbi_zero(cbigint* n)
@@ -538,6 +540,43 @@ cbigint* cbi_div(cbigint* d, cbigint* a_in, cbigint* b_in)
 	return d;
 }
 
+// TODO hard to imagine dealing with numbers big enough...
+// maybe I should have cbi_pow(cbi* e, long, cbi* x)?
+cbigint* cbi_pow(cbigint* e, cbigint* a, cbigint* x)
+{
+	return NULL;
+}
+
+// TODO testing
+cbigint* cbi_powl(cbigint* e, cbigint* a, unsigned long x)
+{
+	if (!x) {
+		e->mag.size = 0;
+		e->sign = 1;
+		cvec_push_long(&e->mag, 1);
+		return e;
+	}
+
+	e->mag.size = 0;
+	e->sign = 1;
+	cvec_insert_array_long(&e->mag, 0, a.mag.a, a.mag.size);
+	if (x == 1) {
+		return e;
+	}
+	
+	int parity = x & 0x1;
+	while (x > 1) {
+		cvec_mult(&e, &e, &e);
+		x >>= 1;
+	}
+	if (parity)
+		cvec_mult(&e, &e, &a);
+
+	return e;
+}
+
+
+
 
 // modifies first parameter and returns it, equivalent to set + op
 // TODO optimization path for these funcs if x is < CBI_BASE?
@@ -573,7 +612,6 @@ cbigint* cbi_divl(cbigint* d, long x)
 	cvec_free_long(&a->mag);
 	return d;
 }
-
 
 
 
