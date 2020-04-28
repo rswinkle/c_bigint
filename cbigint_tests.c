@@ -83,71 +83,6 @@ void sub_test()
 
 }
 
-// on immediate error, do I clear/zero out n?
-cbigint* cbi_read(cbigint* n, FILE* input)
-{
-	char* string = NULL, *tmp_str = NULL;
-	int temp;
-	int i = 0;
-
-	if (feof(input)) {
-		return NULL;
-	}
-
-	int max_len = 4096;
-
-	while (isspace(temp = fgetc(input)));
-
-	if (temp != '-' && temp != '+' && !isdigit(temp)) {
-		return NULL;
-	}
-
-	if (!(string = (char*)malloc(max_len+1)))
-		return NULL;
-
-	string[i++] = temp;
-	
-	while (1) {
-		temp = fgetc(input);
-
-		if (temp == EOF || !isdigit(temp)) {
-			if (!i) {
-				free(string);
-				return NULL;
-			}
-			tmp_str = (char*)realloc(string, i+1);
-			if (!tmp_str) {
-				free(string);
-				return NULL;
-			}
-			string = tmp_str;
-
-			// no-op if temp is EOF?
-			ungetc(temp, input);
-			break;
-		}
-
-		if (i == max_len) {
-			tmp_str = (char*)realloc(string, max_len*2+1);
-			if (!tmp_str) {
-				free(string);
-				return NULL;
-			}
-			string = tmp_str;
-			max_len *= 2;
-		}
-
-		string[i] = temp;
-		i++;
-	}
-	string[i] = '\0';
-
-	// unfortunately this re-checks for valid string
-	n = cbi_fromcstr(n, string);
-	free(string);
-
-	return n;
-}
 
 void arithmetic_test()
 {
@@ -214,13 +149,6 @@ void arithmetic_test()
 		cbi_mult(&tmp2, &b, &b);
 		fprintf(fout, "%s\n\n", cbi_tocstr(&tmp2, num_buf));
 
-		// TODO ideas
-		// cbi_powl(cbigint* a, long x);
-		// cbi_pow(cbigint* a, cbigint* x);
-		//
-		// cbi_abs(n) as a macro
-		//
-		//
 		// a^4
 		cbi_mult(&tmp1, &tmp1, &tmp1);
 
@@ -236,6 +164,7 @@ void arithmetic_test()
 		cbi_add(&c, &tmp1, &tmp2);
 		fprintf(fout, "%s\n\n", cbi_tocstr(&c, num_buf));
 
+		fclose(fin);
 	}
 
 	free(num_buf);

@@ -110,12 +110,80 @@ int cbi_set(cbigint* n, long a)
 	return cvec_push_long(&n->mag, a);
 }
 
-// unecessary but for completionist sake
+// both of these are unecessary but for completionist/convenience sake
+int cbi_reserve(cbigint* n, size_t size)
+{
+	return cvec_reserve_long(&n->mag, size);
+}
 void cbi_negate(cbigint* n)
 {
 	n->sign = -n->sign;
 }
 
+// on immediate error, do I clear/zero out n?
+cbigint* cbi_read(cbigint* n, FILE* input)
+{
+	char* string = NULL, *tmp_str = NULL;
+	int temp;
+	int i = 0;
+	int max_len = 4096;
+
+	if (feof(input)) {
+		return NULL;
+	}
+
+	while (isspace(temp = fgetc(input)));
+
+	if (temp != '-' && temp != '+' && !isdigit(temp)) {
+		return NULL;
+	}
+
+	if (!(string = (char*)malloc(max_len+1)))
+		return NULL;
+
+	string[i++] = temp;
+
+	while (1) {
+		temp = fgetc(input);
+
+		if (temp == EOF || !isdigit(temp)) {
+			if (!i) {
+				free(string);
+				return NULL;
+			}
+			tmp_str = (char*)realloc(string, i+1);
+			if (!tmp_str) {
+				free(string);
+				return NULL;
+			}
+			string = tmp_str;
+
+			// no-op if temp is EOF?
+			ungetc(temp, input);
+			break;
+		}
+
+		if (i == max_len) {
+			tmp_str = (char*)realloc(string, max_len*2+1);
+			if (!tmp_str) {
+				free(string);
+				return NULL;
+			}
+			string = tmp_str;
+			max_len *= 2;
+		}
+
+		string[i] = temp;
+		i++;
+	}
+	string[i] = '\0';
+
+	// unfortunately this re-checks for valid string
+	n = cbi_fromcstr(n, string);
+	free(string);
+
+	return n;
+}
 
 cbigint* cbi_initfromcstr(cbigint* n, const char* s)
 {
@@ -250,6 +318,8 @@ cbigint* cbi_add(cbigint* s, cbigint* a_in, cbigint* b_in)
 
 	s->mag.size = 0;
 
+	cvec_reserve_long(&s->mag, a.mag.size > b.mag.size ? a.mag.size : b.mag.size + 1);
+
 	// TODO future idea, reverse both a and b first so can
 	// add left to right?  and/or build s in reverse with push
 	// and reverse at the end
@@ -369,6 +439,9 @@ cbigint* cbi_sub(cbigint* d, cbigint* a_in, cbigint* b_in)
 		final_sign = a.sign;
 	}
 
+	// thanks to swap, we know a is larger and is the max length result can be
+	cvec_reserve_long(&d->mag, a.mag.size);
+
 	long a_digit, b_digit;
 	long a_i = a.mag.size-1, b_i = b.mag.size-1;
 	int j;
@@ -424,7 +497,7 @@ cbigint* cbi_mult(cbigint* p, cbigint* a_in, cbigint* b_in)
 {
 	cbigint a, b;
 
-	if (!a.sign || !b.sign) {
+	if (!a_in->sign || !b_in->sign) {
 		cbi_zero(p);
 		return p;
 	}
@@ -444,9 +517,15 @@ cbigint* cbi_mult(cbigint* p, cbigint* a_in, cbigint* b_in)
 		b = t;
 	}
 
+
+
+	// Make sure both p and r are large enough to hold potential values ahead of time
+	// so no need to realloc in middle of calculation
 	cbigint r;
 	cvec_long(&r.mag, 0, a.mag.size+b.mag.size);
 	r.sign = 1;   // not sure if necessary
+
+	cvec_reserve_long(&p->mag, a.mag.size+b.mag.size);
 
 	long temp, carry, a_digit, b_digit;
 	int i, j, shift = 0;
@@ -527,6 +606,7 @@ cbigint* cbi_div(cbigint* d, cbigint* a_in, cbigint* b_in)
 	cbi_copy(&a, a_in);
 	cbi_copy(&b, b_in);
 
+	cvec_reserve_long(&d->mag, a.mag.size);
 
 	//TODO There's got to be a better/more efficient way
 	//than traditional/old school long division.  I feel like

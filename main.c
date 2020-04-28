@@ -22,7 +22,7 @@ CU_TestInfo sub_tests[] = {
 };
 
 CU_TestInfo general_tests[] = {
-	{ "arithmetic",        arithmetic_test },
+//	{ "arithmetic",        arithmetic_test },
 	{ "cbi_set",           set_test },
 	CU_TEST_INFO_NULL
 };

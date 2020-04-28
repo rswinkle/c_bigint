@@ -4,6 +4,8 @@
 
 #include "cvector_long.h"
 
+#include <stdio.h>
+
 /* currently only support 64 bit */
 #define CBI_POWER 9
 #define CBI_BASE 1000000000
@@ -28,9 +30,11 @@ int cbi_compare_mag(cbigint* a, cbigint* b);
 // hmm
 int cbi_zero(cbigint* n);
 int cbi_set(cbigint* n, long a);
+int cbi_reserve(cbigint* n, size_t size);
 
 void cbi_negate(cbigint* n);
 
+cbigint* cbi_read(cbigint* n, FILE* input);
 cbigint* cbi_initfromcstr(cbigint* n, const char* s);
 cbigint* cbi_fromcstr(cbigint* n, const char* s);
 
