@@ -13,7 +13,6 @@
 char* freadline(FILE* input);
 char* freadstring(FILE* input, int delim, size_t max_len);
 
-/* add tests */
 void add_test()
 {
 	cbigint a;
@@ -72,10 +71,33 @@ void set_test()
 	cbi_tocstr(&a, buf);
 	CU_ASSERT_STRING_EQUAL("123456799012345678", buf);
 
-	//printf("set\n%s\n\n", buf);
+	cbi_set(&a, 0);
+	cbi_add(&a, &a, &b);
+	cbi_tocstr(&a, buf);
+	CU_ASSERT_STRING_EQUAL("10000000000", buf);
+
+	cbi_set(&a, -10000000000);
+	cbi_add(&a, &a, &b);
+	cbi_tocstr(&a, buf);
+	CU_ASSERT_STRING_EQUAL("0", buf);
+
+	cbi_set(&a, -9999999995);
+	cbi_add(&a, &a, &b);
+	cbi_tocstr(&a, buf);
+	CU_ASSERT_STRING_EQUAL("5", buf);
 
 	cbi_free(&a);
 	cbi_free(&b);
+}
+
+void fromcstr_test()
+{
+	// TODO both varieties
+}
+
+void compare_test()
+{
+	// TODO both varieties
 }
 
 void sub_test()

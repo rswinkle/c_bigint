@@ -19,8 +19,12 @@ arithmetic: main_arithmetic.o
 simple_tests: main_simple.o
 	$(LINK) simple_tests main_simple.o cbigint.o
 
-$(OBJECTS): $(SOURCES) $(HEADERS)
+$(OBJECTS): $(SOURCES) $(HEADERS) cbigint_tests.c
 	$(COMPILE) $(SOURCES)
+
+run_tests:
+	#./arithmetic > myout5
+	#diff out5 myout5
 
 clean:
 	rm test_bigint arithmetic simple_tests *.o
