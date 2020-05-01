@@ -15,6 +15,7 @@ char* freadstring(FILE* input, int delim, size_t max_len);
 
 void add_test()
 {
+	char buf[100];
 	cbigint a;
 	cbi_init(&a);
 
@@ -33,15 +34,17 @@ void add_test()
 	cbigint c = { 0 };
 	cbi_add(&c, &a, &b);
 
-	CU_ASSERT_EQUAL(TEST_NUM, c.mag.a[0]);
+	//CU_ASSERT_EQUAL(TEST_NUM, c.mag.a[0]);
+	cbi_tocstr(&c, buf);
+	CU_ASSERT_STRING_EQUAL("900000009", buf);
 
-	char buf[100];
 	for (int i=0; i<1000; i++) {
 		cbi_add(&c, &c, &b);
 		// TODO test every step?
 	}
 
 	cbi_tocstr(&c, buf);
+	//printf("%s\n", buf);
 	CU_ASSERT_STRING_EQUAL("900900009009", buf);
 
 
@@ -85,6 +88,10 @@ void set_test()
 	cbi_add(&a, &a, &b);
 	cbi_tocstr(&a, buf);
 	CU_ASSERT_STRING_EQUAL("5", buf);
+
+	cbi_set(&a, 100000000000);
+	cbi_tocstr(&a, buf);
+	CU_ASSERT_STRING_EQUAL("100000000000", buf);
 
 	cbi_free(&a);
 	cbi_free(&b);

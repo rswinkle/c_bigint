@@ -102,12 +102,12 @@ int cbi_set(cbigint* n, long a)
 		a = -a;
 		n->sign = -1;
 	}
-	if (a > CBI_BASE) {
-		if (!cvec_push_long(&n->mag, a/CBI_BASE))
+	while (a > CBI_BASE) {
+		if (!cvec_insert_long(&n->mag, 0, a % CBI_BASE))
 			return 0;
-		a %= CBI_BASE;
+		a /= CBI_BASE;
 	}
-	return cvec_push_long(&n->mag, a);
+	return cvec_insert_long(&n->mag, 0, a);
 }
 
 // both of these are unecessary but for completionist/convenience sake
@@ -300,6 +300,7 @@ char* cbi_tocstr(cbigint* n, char* out)
 		*p++ = '-';
 	
 	for (int i=0; i<n->mag.size; ++i) {
+		//printf("%d %ld\n", i, n->mag.a[i]);
 		if (i)
 			p += sprintf(p, "%0*ld", CBI_POWER, n->mag.a[i]);
 		else
@@ -340,10 +341,6 @@ cbigint* cbi_add(cbigint* s, cbigint* a_in, cbigint* b_in)
 			cvec_insert_long(&s->mag, 0, temp);
 		}
 
-		if (a_i < 0 && b_i < 0 && carry) {
-			cvec_insert_long(&s->mag, 0, carry);
-		}
-
 		for (; a_i >= 0; --a_i) {
 			temp = a.mag.a[a_i] + carry;
 			if (temp >= CBI_BASE) {
@@ -364,6 +361,11 @@ cbigint* cbi_add(cbigint* s, cbigint* a_in, cbigint* b_in)
 			}
 			cvec_insert_long(&s->mag, 0, temp);
 		}
+
+		if (carry) {
+			cvec_insert_long(&s->mag, 0, carry);
+		}
+
 
 		s->sign = a.sign;
 
@@ -630,8 +632,11 @@ cbigint* cbi_div(cbigint* q, cbigint* a_in, cbigint* b_in)
 	i += b.mag.size;
 
 	cmp = cbi_compare_mag(&dividend_part, &b);
+	char buf[1024];
+	printf("%s = b, %d\n", cbi_tocstr(&b, buf), b.mag.size);
 
 	do {
+		printf("%s = div_part, %d\n", cbi_tocstr(&dividend_part, buf), dividend_part.mag.size);
 
 		// TODO create cbi_copy()/cvec_copy that doesn't assume cap == 0
 		tmp.mag.size = 0;
@@ -642,28 +647,38 @@ cbigint* cbi_div(cbigint* q, cbigint* a_in, cbigint* b_in)
 			// subtract div_part[0]*b from dividend_part
 
 			cut = dividend_part.mag.a[0];
-			
+			puts("one");
 
 			cbi_multl(&tmp, cut);
 			cbi_sub(&dividend_part, &dividend_part, &tmp);
 		} else {
 			// subtract (div_part[0]/(b[0]+1))*b from dividend_part
 			cut = dividend_part.mag.a[0] / (b.mag.a[0]+1);
+			printf("%ld = %ld / %ld\n", cut, dividend_part.mag.a[0], b.mag.a[0]+1);
 			cbi_multl(&tmp, cut);
+			printf("%s=\n", cbi_tocstr(&tmp, buf));
 			cbi_sub(&dividend_part, &dividend_part, &tmp);
+			printf("%s=\n", cbi_tocstr(&dividend_part, buf));
+
+			puts("two");
 		}
 
 
 		while (cbi_compare_mag(&dividend_part, &b) >= 0) {
 			cbi_sub(&dividend_part, &dividend_part, &b);
 			cut++;
+			//printf("%ld\n", cut);
 		}
 
+		printf("cut = %ld\n", cut);
 		cvec_push_long(&q->mag, cut);
+
+		printf("%s=\n", cbi_tocstr(&dividend_part, buf));
 
 		// could optimize with insert_array_long
 		while (dividend_part.mag.size < b.mag.size && i < a.mag.size) {
 			cvec_push_long(&dividend_part.mag, a.mag.a[i++]);
+			printf("%s\n", cbi_tocstr(&dividend_part, buf));
 		}
 		cmp = cbi_compare_mag(&dividend_part, &b);
 	} while (i < a.mag.size || cmp >= 0);

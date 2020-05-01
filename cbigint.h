@@ -7,8 +7,8 @@
 #include <stdio.h>
 
 /* currently only support 64 bit */
-#define CBI_POWER 2
-#define CBI_BASE 100
+#define CBI_POWER 1
+#define CBI_BASE 10
 
 #define cbi_maxstrlen(n) ((n)->mag.size*CBI_POWER+2)
 

@@ -54,6 +54,11 @@ int main(int argc, char** argv)
 	cbi_div(&p, &a, &b);
 	printf("1000 / 10 = %s\n", cbi_tocstr(&p, buf));
 
+	cbi_set(&a, 1200);
+	cbi_set(&b, 10);
+	cbi_div(&p, &a, &b);
+	printf("1200 / 10 = %s\n", cbi_tocstr(&p, buf));
+
 	cbi_free(&a);
 	cbi_free(&b);
 	cbi_free(&p);
