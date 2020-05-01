@@ -576,10 +576,9 @@ cbigint* cbi_mult(cbigint* p, cbigint* a_in, cbigint* b_in)
 	return p;
 }
 
-cbigint* cbi_div(cbigint* d, cbigint* a_in, cbigint* b_in)
+cbigint* cbi_div(cbigint* q, cbigint* a_in, cbigint* b_in)
 {
 	cbigint a, b;
-
 
 	// division by 0
 	if (!b_in->sign) {
@@ -588,36 +587,96 @@ cbigint* cbi_div(cbigint* d, cbigint* a_in, cbigint* b_in)
 
 	int cmp = cbi_compare_mag(a_in, b_in);
 	if (!a_in->sign || cmp < 0) {
-		cbi_zero(d);
-		return d;
+		cbi_zero(q);
+		return q;
 	}
 
-	d->mag.size = 0;
-	d->sign = 1;
+	q->mag.size = 0;
+	q->sign = 1;
 	if (a_in->sign != b_in->sign) {
-		d->sign = -1;
+		q->sign = -1;
+	}
+
+	// divide by 1
+	if (b_in->mag.size == 1 && b_in->mag.a[0] == 1) {
+		cvec_insert_array_long(&q->mag, 0, a_in->mag.a, a_in->mag.size);
+		return q;
 	}
 
 	if (!cmp) {
-		cvec_push_long(&d->mag, 1);
-		return d;
+		cvec_push_long(&q->mag, 1);
+		return q;
 	}
 
 	cbi_copy(&a, a_in);
 	cbi_copy(&b, b_in);
 
-	cvec_reserve_long(&d->mag, a.mag.size);
+	cvec_reserve_long(&q->mag, a.mag.size);
 
 	//TODO There's got to be a better/more efficient way
 	//than traditional/old school long division.  I feel like
-	//there is some simpler-to-program equivalent on the ti
+	//there is some simpler-to-program equivalent on the tip
 	//of my brain
+	
+	int i = 0, j = 0;
+	long cut;
+	cbigint dividend_part, tmp;
+	dividend_part.sign = tmp.sign = 1;
+
+	cvec_long(&dividend_part.mag, 0, a.mag.size);
+	cvec_long(&tmp.mag, 0, a.mag.size);
+
+	cvec_insert_array_long(&dividend_part.mag, 0, a.mag.a, b.mag.size);
+	i += b.mag.size;
+
+	cmp = cbi_compare_mag(&dividend_part, &b);
+
+	do {
+
+		// TODO create cbi_copy()/cvec_copy that doesn't assume cap == 0
+		tmp.mag.size = 0;
+		cvec_insert_array_long(&tmp.mag, 0, b.mag.a, b.mag.size);
+
+		if (cmp < 0) {
+			cvec_push_long(&dividend_part.mag, a.mag.a[i++]);
+			// subtract div_part[0]*b from dividend_part
+
+			cut = dividend_part.mag.a[0];
+			
+
+			cbi_multl(&tmp, cut);
+			cbi_sub(&dividend_part, &dividend_part, &tmp);
+		} else {
+			// subtract (div_part[0]/(b[0]+1))*b from dividend_part
+			cut = dividend_part.mag.a[0] / (b.mag.a[0]+1);
+			cbi_multl(&tmp, cut);
+			cbi_sub(&dividend_part, &dividend_part, &tmp);
+		}
 
 
+		while (cbi_compare_mag(&dividend_part, &b) >= 0) {
+			cbi_sub(&dividend_part, &dividend_part, &b);
+			cut++;
+		}
+
+		cvec_push_long(&q->mag, cut);
+
+		// could optimize with insert_array_long
+		while (dividend_part.mag.size < b.mag.size && i < a.mag.size) {
+			cvec_push_long(&dividend_part.mag, a.mag.a[i++]);
+		}
+		cmp = cbi_compare_mag(&dividend_part, &b);
+	} while (i < a.mag.size || cmp >= 0);
+
+
+	// dividend_part should contain the remainder, if I added that
+	// as an output parameter
 	cvec_free_long(&a.mag);
 	cvec_free_long(&b.mag);
+	cvec_free_long(&dividend_part.mag);
+	cvec_free_long(&tmp.mag);
 
-	return d;
+	return q;
 }
 
 // TODO hard to imagine dealing with numbers big enough...

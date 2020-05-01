@@ -7,8 +7,8 @@
 #include <stdio.h>
 
 /* currently only support 64 bit */
-#define CBI_POWER 9
-#define CBI_BASE 1000000000
+#define CBI_POWER 2
+#define CBI_BASE 100
 
 #define cbi_maxstrlen(n) ((n)->mag.size*CBI_POWER+2)
 
@@ -49,8 +49,19 @@ cbigint* cbi_div(cbigint* s, cbigint* a, cbigint* b);
 
 cbigint* cbi_addl(cbigint* s, long x);
 cbigint* cbi_subl(cbigint* d, long x);
-cbigint* cbi_multl(cbigint* s, long x);
-cbigint* cbi_addl(cbigint* s, long x);
+cbigint* cbi_multl(cbigint* p, long x);
+cbigint* cbi_divl(cbigint* q, long x);
+
+cbigint* cbi_addll(cbigint* s, long a, long b);
+cbigint* cbi_subll(cbigint* d, long a, long b);
+cbigint* cbi_multll(cbigint* p, long a, long b);
+cbigint* cbi_divll(cbigint* q, long a, long b);
+
+// name?
+//cbigint* cbi_addl(cbigint* s, cbigint* a, long b);
+//cbigint* cbi_subl(cbigint* d, cbigint* a, long b);
+//cbigint* cbi_multl(cbigint* p, cbigint* a, long b);
+//cbigint* cbi_divl(cbigint* q, cbigint* a, long b);
 
 
 
