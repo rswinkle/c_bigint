@@ -578,6 +578,25 @@ cbigint* cbi_mult(cbigint* p, cbigint* a_in, cbigint* b_in)
 	return p;
 }
 
+// name?  shift left?  or have that as a separate function?
+// basically idea is to shift left, push(mag, x) but treat 0 correctly
+// ie if n is 0, just mag.a[0] = x more or less
+void cbi_safe_push(cbigint* n, long x)
+{
+	if (n->mag.size == 1)
+		;
+}
+
+// TODO reuse
+void cbi_normalize(cbigint* n)
+{
+	int i = 0;
+	while (i < n->mag.size-1 && !n->mag.a[i])
+		i++;
+	if (i)
+		cvec_erase_long(&n->mag, 0, i-1);
+}
+
 cbigint* cbi_div(cbigint* q, cbigint* a_in, cbigint* b_in)
 {
 	cbigint a, b;
@@ -633,10 +652,10 @@ cbigint* cbi_div(cbigint* q, cbigint* a_in, cbigint* b_in)
 
 	cmp = cbi_compare_mag(&dividend_part, &b);
 	char buf[1024];
-	printf("%s = b, %d\n", cbi_tocstr(&b, buf), b.mag.size);
+	printf("%s = b, %ld\n", cbi_tocstr(&b, buf), b.mag.size);
 
 	do {
-		printf("%s = div_part, %d\n", cbi_tocstr(&dividend_part, buf), dividend_part.mag.size);
+		printf("%s = div_part, %ld\n", cbi_tocstr(&dividend_part, buf), dividend_part.mag.size);
 
 		// TODO create cbi_copy()/cvec_copy that doesn't assume cap == 0
 		tmp.mag.size = 0;
@@ -675,9 +694,14 @@ cbigint* cbi_div(cbigint* q, cbigint* a_in, cbigint* b_in)
 
 		printf("%s=\n", cbi_tocstr(&dividend_part, buf));
 
+		if (!dividend_part.mag.a[0])
+			dividend_part.mag.size = 0;
+
+		cvec_push_long(&dividend_part.mag, a.mag.a[i++]);
 		// could optimize with insert_array_long
 		while (dividend_part.mag.size < b.mag.size && i < a.mag.size) {
 			cvec_push_long(&dividend_part.mag, a.mag.a[i++]);
+			cvec_push_long(&q->mag, 0);
 			printf("%s\n", cbi_tocstr(&dividend_part, buf));
 		}
 		cmp = cbi_compare_mag(&dividend_part, &b);
