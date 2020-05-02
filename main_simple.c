@@ -59,8 +59,16 @@ int main(int argc, char** argv)
 	cbi_div(&p, &a, &b);
 	printf("1200 / 10 = %s\n", cbi_tocstr(&p, buf));
 
+	cbi_set(&a, 10);
+	//cbi_set(&b, 1);
+	cbigint c = { 0 };
+	cbi_set(&c, 1);
+	cbi_mult(&a, &a, &c);
+	printf("10 * 1 = %s\n", cbi_tocstr(&a, buf));
+
 	cbi_free(&a);
 	cbi_free(&b);
+	cbi_free(&c);
 	cbi_free(&p);
 	cbi_free(&three);
 	cbi_free(&hundred);

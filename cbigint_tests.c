@@ -13,6 +13,9 @@
 char* freadline(FILE* input);
 char* freadstring(FILE* input, int delim, size_t max_len);
 
+#define xstr(s) str(s)
+#define str(s) #s
+
 void add_test()
 {
 	char buf[100];
@@ -92,6 +95,11 @@ void set_test()
 	cbi_set(&a, 100000000000);
 	cbi_tocstr(&a, buf);
 	CU_ASSERT_STRING_EQUAL("100000000000", buf);
+
+	cbi_set(&a, CBI_BASE);
+	cbi_tocstr(&a, buf);
+	CU_ASSERT_STRING_EQUAL(xstr(CBI_BASE), buf);
+	CU_ASSERT_EQUAL(a.mag.size, 2);
 
 	cbi_free(&a);
 	cbi_free(&b);

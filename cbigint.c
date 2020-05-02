@@ -102,7 +102,7 @@ int cbi_set(cbigint* n, long a)
 		a = -a;
 		n->sign = -1;
 	}
-	while (a > CBI_BASE) {
+	while (a >= CBI_BASE) {
 		if (!cvec_insert_long(&n->mag, 0, a % CBI_BASE))
 			return 0;
 		a /= CBI_BASE;
@@ -499,10 +499,14 @@ cbigint* cbi_mult(cbigint* p, cbigint* a_in, cbigint* b_in)
 {
 	cbigint a, b;
 
+	// early out for 0 (have to be really careful about maintaining
+	// the correct sign, otherwise have to do !a->mag.a[0] && mag.size == 1 to check for 0
 	if (!a_in->sign || !b_in->sign) {
 		cbi_zero(p);
 		return p;
 	}
+
+	// could have early out for 1 too
 
 	cbi_copy(&a, a_in);
 	cbi_copy(&b, b_in);
@@ -518,8 +522,6 @@ cbigint* cbi_mult(cbigint* p, cbigint* a_in, cbigint* b_in)
 		a = b;
 		b = t;
 	}
-
-
 
 	// Make sure both p and r are large enough to hold potential values ahead of time
 	// so no need to realloc in middle of calculation
@@ -653,13 +655,19 @@ cbigint* cbi_div(cbigint* q, cbigint* a_in, cbigint* b_in)
 	cmp = cbi_compare_mag(&dividend_part, &b);
 	char buf[1024];
 	printf("%s = b, %ld\n", cbi_tocstr(&b, buf), b.mag.size);
+	q->mag.a[q->mag.size++] = 0;
 
+	printf("bsize = %ld\n", b.mag.size);
 	do {
 		printf("%s = div_part, %ld\n", cbi_tocstr(&dividend_part, buf), dividend_part.mag.size);
 
 		// TODO create cbi_copy()/cvec_copy that doesn't assume cap == 0
 		tmp.mag.size = 0;
+		tmp.sign = 1;
 		cvec_insert_array_long(&tmp.mag, 0, b.mag.a, b.mag.size);
+
+
+		q->mag.size--;
 
 		if (cmp < 0) {
 			cvec_push_long(&dividend_part.mag, a.mag.a[i++]);
@@ -675,13 +683,11 @@ cbigint* cbi_div(cbigint* q, cbigint* a_in, cbigint* b_in)
 			cut = dividend_part.mag.a[0] / (b.mag.a[0]+1);
 			printf("%ld = %ld / %ld\n", cut, dividend_part.mag.a[0], b.mag.a[0]+1);
 			cbi_multl(&tmp, cut);
-			printf("%s=\n", cbi_tocstr(&tmp, buf));
 			cbi_sub(&dividend_part, &dividend_part, &tmp);
 			printf("%s=\n", cbi_tocstr(&dividend_part, buf));
 
 			puts("two");
 		}
-
 
 		while (cbi_compare_mag(&dividend_part, &b) >= 0) {
 			cbi_sub(&dividend_part, &dividend_part, &b);
@@ -692,12 +698,15 @@ cbigint* cbi_div(cbigint* q, cbigint* a_in, cbigint* b_in)
 		printf("cut = %ld\n", cut);
 		cvec_push_long(&q->mag, cut);
 
-		printf("%s=\n", cbi_tocstr(&dividend_part, buf));
+		printf("%s = after subtraction %ld %d %ld\n", cbi_tocstr(&dividend_part, buf), dividend_part.mag.size, i, a.mag.size);
 
-		if (!dividend_part.mag.a[0])
-			dividend_part.mag.size = 0;
+		while (!dividend_part.mag.a[0] && i < a.mag.size) {
+			dividend_part.mag.a[0] = a.mag.a[i++];
+			cvec_push_long(&q->mag, 0);
+			printf("here\n");
+		}
 
-		cvec_push_long(&dividend_part.mag, a.mag.a[i++]);
+		printf("bsize = %ld\n", b.mag.size);
 		// could optimize with insert_array_long
 		while (dividend_part.mag.size < b.mag.size && i < a.mag.size) {
 			cvec_push_long(&dividend_part.mag, a.mag.a[i++]);
