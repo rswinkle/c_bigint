@@ -653,67 +653,50 @@ cbigint* cbi_div(cbigint* q, cbigint* a_in, cbigint* b_in)
 	i += b.mag.size;
 
 	cmp = cbi_compare_mag(&dividend_part, &b);
-	char buf[1024];
-	printf("%s = b, %ld\n", cbi_tocstr(&b, buf), b.mag.size);
-	q->mag.a[q->mag.size++] = 0;
 
-	printf("bsize = %ld\n", b.mag.size);
 	do {
-		printf("%s = div_part, %ld\n", cbi_tocstr(&dividend_part, buf), dividend_part.mag.size);
 
 		// TODO create cbi_copy()/cvec_copy that doesn't assume cap == 0
 		tmp.mag.size = 0;
 		tmp.sign = 1;
 		cvec_insert_array_long(&tmp.mag, 0, b.mag.a, b.mag.size);
 
-
-		q->mag.size--;
-
 		if (cmp < 0) {
 			cvec_push_long(&dividend_part.mag, a.mag.a[i++]);
 			// subtract div_part[0]*b from dividend_part
 
 			cut = dividend_part.mag.a[0];
-			puts("one");
 
 			cbi_multl(&tmp, cut);
 			cbi_sub(&dividend_part, &dividend_part, &tmp);
 		} else {
 			// subtract (div_part[0]/(b[0]+1))*b from dividend_part
 			cut = dividend_part.mag.a[0] / (b.mag.a[0]+1);
-			printf("%ld = %ld / %ld\n", cut, dividend_part.mag.a[0], b.mag.a[0]+1);
+			//printf("%ld = %ld / %ld\n", cut, dividend_part.mag.a[0], b.mag.a[0]+1);
 			cbi_multl(&tmp, cut);
 			cbi_sub(&dividend_part, &dividend_part, &tmp);
-			printf("%s=\n", cbi_tocstr(&dividend_part, buf));
-
-			puts("two");
 		}
 
 		while (cbi_compare_mag(&dividend_part, &b) >= 0) {
 			cbi_sub(&dividend_part, &dividend_part, &b);
 			cut++;
-			//printf("%ld\n", cut);
 		}
 
-		printf("cut = %ld\n", cut);
 		cvec_push_long(&q->mag, cut);
 
-		printf("%s = after subtraction %ld %d %ld\n", cbi_tocstr(&dividend_part, buf), dividend_part.mag.size, i, a.mag.size);
 
 		while (!dividend_part.mag.a[0] && i < a.mag.size) {
 			dividend_part.mag.a[0] = a.mag.a[i++];
 			cvec_push_long(&q->mag, 0);
-			printf("here\n");
 		}
 
-		printf("bsize = %ld\n", b.mag.size);
 		// could optimize with insert_array_long
 		while (dividend_part.mag.size < b.mag.size && i < a.mag.size) {
 			cvec_push_long(&dividend_part.mag, a.mag.a[i++]);
 			cvec_push_long(&q->mag, 0);
-			printf("%s\n", cbi_tocstr(&dividend_part, buf));
 		}
 		cmp = cbi_compare_mag(&dividend_part, &b);
+		q->mag.size -= cmp >= 0;
 	} while (i < a.mag.size || cmp >= 0);
 
 

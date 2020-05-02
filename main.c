@@ -11,15 +11,14 @@ extern void sub_test();
 
 
 
-CU_TestInfo add_tests[] = {
+CU_TestInfo op_tests[] = {
 	{ "add_test",           add_test },
+	{ "sub_test",           sub_test },
+	{ "mult_test",          mult_test },
+	{ "div_test",           div_test },
 	CU_TEST_INFO_NULL
 };
 
-CU_TestInfo sub_tests[] = {
-	{ "sub_test",        sub_test },
-	CU_TEST_INFO_NULL
-};
 
 CU_TestInfo general_tests[] = {
 //	{ "arithmetic",        arithmetic_test },
@@ -33,8 +32,7 @@ CU_TestInfo general_tests[] = {
 
 CU_SuiteInfo cbigint_suites[] = {
 #ifndef OLD_CUNIT
-	{ "add_tests",     NULL, NULL, NULL, NULL, add_tests },
-	{ "sub_tests",     NULL, NULL, NULL, NULL, sub_tests },
+	{ "op_tests",     NULL, NULL, NULL, NULL, op_tests },
 	{ "general_tests",     NULL, NULL, NULL, NULL, general_tests },
 #else
 	{ "add_tests",     NULL, NULL, add_tests },

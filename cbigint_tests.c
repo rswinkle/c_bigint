@@ -120,6 +120,53 @@ void sub_test()
 
 }
 
+void mult_test()
+{
+}
+
+void div_test()
+{
+	cbigint a = { 0 };
+	cbigint b = { 0 };
+	cbigint p = { 0 };
+	char buf[1024];
+	
+	cbi_set(&a, 9900);
+	cbi_set(&b, 100);
+	cbi_div(&p, &a, &b);
+	cbi_tocstr(&p, buf);
+	CU_ASSERT_STRING_EQUAL("99", buf);
+
+	cbi_set(&a, 1001);
+	cbi_set(&b, 99);
+	cbi_div(&p, &a, &b);
+	CU_ASSERT_STRING_EQUAL("10", cbi_tocstr(&p, buf));
+
+	cbi_set(&a, 1000);
+	cbi_set(&b, 10);
+	cbi_div(&p, &a, &b);
+	CU_ASSERT_STRING_EQUAL("100", cbi_tocstr(&p, buf));
+
+	cbi_set(&a, 1200);
+	cbi_set(&b, 10);
+	cbi_div(&p, &a, &b);
+	CU_ASSERT_STRING_EQUAL("120", cbi_tocstr(&p, buf));
+
+	cbi_set(&a, 3040000);
+	cbi_set(&b, 303);
+	cbi_div(&p, &a, &b);
+	CU_ASSERT_STRING_EQUAL("10033", cbi_tocstr(&p, buf));
+
+	cbi_set(&a, 3030000);
+	cbi_set(&b, 303);
+	cbi_div(&p, &a, &b);
+	CU_ASSERT_STRING_EQUAL("10000", cbi_tocstr(&p, buf));
+
+	cbi_free(&a);
+	cbi_free(&b);
+	cbi_free(&p);
+}
+
 
 void arithmetic_test()
 {

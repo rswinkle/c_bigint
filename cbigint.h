@@ -6,9 +6,16 @@
 
 #include <stdio.h>
 
-/* currently only support 64 bit */
-#define CBI_POWER 1
-#define CBI_BASE 10
+// multiplication is the limiting factor for CBI_BASE
+// CBI_BASE^2 < LONG_MAX must hold.  If sizeof(long) == 8
+// 10^9 is the largest power of 10 that remains true.
+// It'd be 10^4 for a 32-bit long
+//
+// lower powers, 1 and 2 are good for testing/rooting out bugs
+//#define CBI_POWER 1
+//#define CBI_BASE 10
+#define CBI_POWER 9
+#define CBI_BASE 1000000000
 
 #define cbi_maxstrlen(n) ((n)->mag.size*CBI_POWER+2)
 
