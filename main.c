@@ -16,6 +16,7 @@ CU_TestInfo op_tests[] = {
 	{ "sub_test",           sub_test },
 	{ "mult_test",          mult_test },
 	{ "div_test",           div_test },
+	{ "pow_test",           pow_test },
 	CU_TEST_INFO_NULL
 };
 

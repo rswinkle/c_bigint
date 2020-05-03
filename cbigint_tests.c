@@ -167,6 +167,25 @@ void div_test()
 	cbi_free(&p);
 }
 
+void pow_test()
+{
+	cbigint a, b;
+	char buf[1024];
+
+	cbi_init(&a);
+	cbi_init(&b);
+
+	cbi_set(&a, 2);
+	cbi_powl(&b, &a, 100);
+	CU_ASSERT_STRING_EQUAL("1267650600228229401496703205376", cbi_tocstr(&b, buf));
+
+	cbi_set(&a, 3);
+	cbi_powl(&b, &a, 71);
+	CU_ASSERT_STRING_EQUAL("7509466514979724803946715958257547", cbi_tocstr(&b, buf));
+	cbi_free(&a);
+	cbi_free(&b);
+}
+
 
 void arithmetic_test()
 {

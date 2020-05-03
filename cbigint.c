@@ -734,13 +734,21 @@ cbigint* cbi_powl(cbigint* e, cbigint* a, unsigned long x)
 		return e;
 	}
 	
-	int parity = x & 0x1;
+	unsigned long save = x;
+	int pow2 = 1;
 	while (x > 1) {
 		cbi_mult(e, e, e);
 		x >>= 1;
+
+		pow2 <<= 1;
+		//mask <<= 1;
+		//mask |= 0x1
 	}
-	if (parity)
+	save -= pow2;
+	while (save > 0) {
 		cbi_mult(e, e, a);
+		save--;
+	}
 
 	return e;
 }

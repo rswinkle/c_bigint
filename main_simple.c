@@ -76,6 +76,10 @@ int main(int argc, char** argv)
 	cbi_mult(&a, &a, &c);
 	printf("10 * 1 = %s\n", cbi_tocstr(&a, buf));
 
+	cbi_set(&a, 2);
+	cbi_powl(&c, &a, 1000);
+	printf("2^1000 = %s\n", cbi_tocstr(&c, buf));
+
 	cbi_free(&a);
 	cbi_free(&b);
 	cbi_free(&c);

@@ -71,6 +71,8 @@ cbigint* cbi_divll(cbigint* q, long a, long b);
 //cbigint* cbi_divl(cbigint* q, cbigint* a, long b);
 
 
+cbigint* cbi_pow(cbigint* e, cbigint* a, cbigint* x);
+cbigint* cbi_powl(cbigint* e, cbigint* a, unsigned long x);
 
 
 
