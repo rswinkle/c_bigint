@@ -57,7 +57,7 @@ void add_test()
 
 void sub_test()
 {
-	char buf[100];
+	char buf[1000];
 	cbigint a, b, c;
 	cbi_init(&a);
 	cbi_init(&b);
@@ -97,6 +97,42 @@ void sub_test()
 
 void mult_test()
 {
+	char buf[1000];
+	cbigint a, b, c;
+	cbi_init(&a);
+	cbi_init(&b);
+	cbi_init(&c);
+
+	cbi_set(&a, 999);
+	cbi_mult(&c, &a, &b);
+	CU_ASSERT_STRING_EQUAL("0", cbi_tocstr(&c, buf));
+
+	cbi_mult(&c, &b, &a);
+	CU_ASSERT_STRING_EQUAL("0", cbi_tocstr(&c, buf));
+
+	cbi_mult(&c, &a, &a);
+	CU_ASSERT_STRING_EQUAL("998001", cbi_tocstr(&c, buf));
+
+	cbi_set(&b, 1);
+	cbi_mult(&c, &a, &b);
+	CU_ASSERT_STRING_EQUAL("999", cbi_tocstr(&c, buf));
+
+	cbi_set(&b, 1);
+	cbi_mult(&c, &b, &a);
+	CU_ASSERT_STRING_EQUAL("999", cbi_tocstr(&c, buf));
+
+	cbi_set(&a, -999);
+	cbi_set(&b, 100);
+	cbi_mult(&c, &a, &b);
+	CU_ASSERT_STRING_EQUAL("-99900", cbi_tocstr(&c, buf));
+
+	cbi_set(&b, -100);
+	cbi_mult(&c, &a, &b);
+	CU_ASSERT_STRING_EQUAL("99900", cbi_tocstr(&c, buf));
+
+	cbi_free(&a);
+	cbi_free(&b);
+	cbi_free(&c);
 }
 
 void div_test()
