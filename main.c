@@ -23,7 +23,10 @@ CU_TestInfo op_tests[] = {
 
 CU_TestInfo general_tests[] = {
 //	{ "arithmetic",        arithmetic_test },
-	{ "cbi_set",           set_test },
+	{ "set",               set_test },
+	{ "fromcstr",          fromcstr_test },
+	{ "compare",           compare_test },
+
 	CU_TEST_INFO_NULL
 };
 
@@ -36,8 +39,7 @@ CU_SuiteInfo cbigint_suites[] = {
 	{ "op_tests",     NULL, NULL, NULL, NULL, op_tests },
 	{ "general_tests",     NULL, NULL, NULL, NULL, general_tests },
 #else
-	{ "add_tests",     NULL, NULL, add_tests },
-	{ "sub_tests",     NULL, NULL, sub_tests },
+	{ "op_tests",     NULL, NULL, op_tests },
 	{ "general_tests",     NULL, NULL, general_tests },
 #endif
 	CU_SUITE_INFO_NULL

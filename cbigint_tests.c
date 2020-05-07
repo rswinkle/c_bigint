@@ -22,7 +22,6 @@ void add_test()
 	cbigint a;
 	cbi_init(&a);
 
-
 	CU_ASSERT_EQUAL(CVEC_long_SZ, a.mag.capacity);
 	CU_ASSERT_EQUAL(1, a.mag.size);
 
@@ -56,68 +55,44 @@ void add_test()
 	cbi_free(&c);
 }
 
-void set_test()
+void sub_test()
 {
-	cbigint a = { 0 };
-	cbigint b = { 0 };
+	char buf[100];
+	cbigint a, b, c;
+	cbi_init(&a);
+	cbi_init(&b);
+	cbi_init(&c);
 
 	cbi_set(&a, 12345);
+	cbi_sub(&c, &a, &b);
+	CU_ASSERT_STRING_EQUAL("12345", cbi_tocstr(&c, buf));
 
-	char buf[1000];
-	cbi_tocstr(&a, buf);
+	cbi_sub(&c, &b, &a);
+	CU_ASSERT_STRING_EQUAL("-12345", cbi_tocstr(&c, buf));
 
-	CU_ASSERT_STRING_EQUAL("12345", buf);
+	cbi_sub(&c, &a, &a);
+	CU_ASSERT_STRING_EQUAL("0", cbi_tocstr(&c, buf));
 
-	long t = LONG_MAX - 100;
-	cbi_set(&a, 123456789012345678);
+	cbi_set(&b, 12346);
+	cbi_sub(&c, &a, &b);
+	CU_ASSERT_STRING_EQUAL("-1", cbi_tocstr(&c, buf));
 
-	cbi_set(&b, 10000000000);
-	cbi_add(&a, &a, &b);
+	cbi_set(&a, -90000);
+	cbi_set(&b, 100);
+	cbi_sub(&c, &a, &b);
+	CU_ASSERT_STRING_EQUAL("-90100", cbi_tocstr(&c, buf));
 
-	cbi_tocstr(&a, buf);
-	CU_ASSERT_STRING_EQUAL("123456799012345678", buf);
+	cbi_set(&b, -100);
+	cbi_sub(&c, &a, &b);
+	CU_ASSERT_STRING_EQUAL("-89900", cbi_tocstr(&c, buf));
 
-	cbi_set(&a, 0);
-	cbi_add(&a, &a, &b);
-	cbi_tocstr(&a, buf);
-	CU_ASSERT_STRING_EQUAL("10000000000", buf);
-
-	cbi_set(&a, -10000000000);
-	cbi_add(&a, &a, &b);
-	cbi_tocstr(&a, buf);
-	CU_ASSERT_STRING_EQUAL("0", buf);
-
-	cbi_set(&a, -9999999995);
-	cbi_add(&a, &a, &b);
-	cbi_tocstr(&a, buf);
-	CU_ASSERT_STRING_EQUAL("5", buf);
-
-	cbi_set(&a, 100000000000);
-	cbi_tocstr(&a, buf);
-	CU_ASSERT_STRING_EQUAL("100000000000", buf);
-
-	cbi_set(&a, CBI_BASE);
-	cbi_tocstr(&a, buf);
-	CU_ASSERT_STRING_EQUAL(xstr(CBI_BASE), buf);
-	CU_ASSERT_EQUAL(a.mag.size, 2);
+	cbi_set(&a, 90000);
+	cbi_sub(&c, &a, &b);
+	CU_ASSERT_STRING_EQUAL("90100", cbi_tocstr(&c, buf));
 
 	cbi_free(&a);
 	cbi_free(&b);
-}
-
-void fromcstr_test()
-{
-	// TODO both varieties
-}
-
-void compare_test()
-{
-	// TODO both varieties
-}
-
-void sub_test()
-{
-
+	cbi_free(&c);
 }
 
 void mult_test()
@@ -184,6 +159,67 @@ void pow_test()
 	CU_ASSERT_STRING_EQUAL("7509466514979724803946715958257547", cbi_tocstr(&b, buf));
 	cbi_free(&a);
 	cbi_free(&b);
+}
+
+
+// general tests
+void set_test()
+{
+	cbigint a = { 0 };
+	cbigint b = { 0 };
+
+	cbi_set(&a, 12345);
+
+	char buf[1000];
+	cbi_tocstr(&a, buf);
+
+	CU_ASSERT_STRING_EQUAL("12345", buf);
+
+	long t = LONG_MAX - 100;
+	cbi_set(&a, 123456789012345678);
+
+	cbi_set(&b, 10000000000);
+	cbi_add(&a, &a, &b);
+
+	cbi_tocstr(&a, buf);
+	CU_ASSERT_STRING_EQUAL("123456799012345678", buf);
+
+	cbi_set(&a, 0);
+	cbi_add(&a, &a, &b);
+	cbi_tocstr(&a, buf);
+	CU_ASSERT_STRING_EQUAL("10000000000", buf);
+
+	cbi_set(&a, -10000000000);
+	cbi_add(&a, &a, &b);
+	cbi_tocstr(&a, buf);
+	CU_ASSERT_STRING_EQUAL("0", buf);
+
+	cbi_set(&a, -9999999995);
+	cbi_add(&a, &a, &b);
+	cbi_tocstr(&a, buf);
+	CU_ASSERT_STRING_EQUAL("5", buf);
+
+	cbi_set(&a, 100000000000);
+	cbi_tocstr(&a, buf);
+	CU_ASSERT_STRING_EQUAL("100000000000", buf);
+
+	cbi_set(&a, CBI_BASE);
+	cbi_tocstr(&a, buf);
+	CU_ASSERT_STRING_EQUAL(xstr(CBI_BASE), buf);
+	CU_ASSERT_EQUAL(a.mag.size, 2);
+
+	cbi_free(&a);
+	cbi_free(&b);
+}
+
+void fromcstr_test()
+{
+	// TODO both varieties
+}
+
+void compare_test()
+{
+	// TODO both varieties
 }
 
 

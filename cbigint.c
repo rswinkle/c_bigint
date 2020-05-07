@@ -739,10 +739,7 @@ cbigint* cbi_powl(cbigint* e, cbigint* a, unsigned long x)
 	while (x > 1) {
 		cbi_mult(e, e, e);
 		x >>= 1;
-
 		pow2 <<= 1;
-		//mask <<= 1;
-		//mask |= 0x1
 	}
 	save -= pow2;
 	while (save > 0) {
