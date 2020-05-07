@@ -49,6 +49,18 @@ void add_test()
 	//printf("%s\n", buf);
 	CU_ASSERT_STRING_EQUAL("900900009009", buf);
 
+	cbi_set(&a, 0);
+	cbi_add(&c, &a, &b);
+	cbi_tocstr(&c, buf);
+	CU_ASSERT_STRING_EQUAL(xstr(TEST_NUM), buf);
+
+	cbi_add(&c, &b, &a);
+	cbi_tocstr(&c, buf);
+	CU_ASSERT_STRING_EQUAL(xstr(TEST_NUM), buf);
+
+	cbi_add(&c, &a, &a);
+	cbi_tocstr(&c, buf);
+	CU_ASSERT_STRING_EQUAL("0", buf);
 
 	cbi_free(&a);
 	cbi_free(&b);
@@ -195,6 +207,26 @@ void pow_test()
 	CU_ASSERT_STRING_EQUAL("7509466514979724803946715958257547", cbi_tocstr(&b, buf));
 	cbi_free(&a);
 	cbi_free(&b);
+}
+
+void addl_test()
+{
+	cbigint a = { 0 };
+
+	//cbi_addl(
+
+	cbi_free(&a);
+}
+
+void subl_test()
+{
+}
+
+void multl_test()
+{
+}
+void divl_test()
+{
 }
 
 

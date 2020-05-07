@@ -325,7 +325,7 @@ cbigint* cbi_add(cbigint* s, cbigint* a_in, cbigint* b_in)
 	// add left to right?  and/or build s in reverse with push
 	// and reverse at the end
 	
-	if (a.sign == b.sign) {
+	if (a.sign && b.sign && a.sign == b.sign) {
 		// standard addition looping from least significant
 		// adding in carries
 		long temp, carry = 0;
