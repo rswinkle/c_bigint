@@ -31,7 +31,7 @@ void add_test()
 
 #define TEST_NUM 900000009
 
-	cbi_set(&b, TEST_NUM);
+	cbi_setl(&b, TEST_NUM);
 
 	cbigint c = { 0 };
 	cbi_add(&c, &a, &b);
@@ -49,7 +49,7 @@ void add_test()
 	//printf("%s\n", buf);
 	CU_ASSERT_STRING_EQUAL("900900009009", buf);
 
-	cbi_set(&a, 0);
+	cbi_setl(&a, 0);
 	cbi_add(&c, &a, &b);
 	cbi_tocstr(&c, buf);
 	CU_ASSERT_STRING_EQUAL(xstr(TEST_NUM), buf);
@@ -75,7 +75,7 @@ void sub_test()
 	cbi_init(&b);
 	cbi_init(&c);
 
-	cbi_set(&a, 12345);
+	cbi_setl(&a, 12345);
 	cbi_sub(&c, &a, &b);
 	CU_ASSERT_STRING_EQUAL("12345", cbi_tocstr(&c, buf));
 
@@ -85,20 +85,20 @@ void sub_test()
 	cbi_sub(&c, &a, &a);
 	CU_ASSERT_STRING_EQUAL("0", cbi_tocstr(&c, buf));
 
-	cbi_set(&b, 12346);
+	cbi_setl(&b, 12346);
 	cbi_sub(&c, &a, &b);
 	CU_ASSERT_STRING_EQUAL("-1", cbi_tocstr(&c, buf));
 
-	cbi_set(&a, -90000);
-	cbi_set(&b, 100);
+	cbi_setl(&a, -90000);
+	cbi_setl(&b, 100);
 	cbi_sub(&c, &a, &b);
 	CU_ASSERT_STRING_EQUAL("-90100", cbi_tocstr(&c, buf));
 
-	cbi_set(&b, -100);
+	cbi_setl(&b, -100);
 	cbi_sub(&c, &a, &b);
 	CU_ASSERT_STRING_EQUAL("-89900", cbi_tocstr(&c, buf));
 
-	cbi_set(&a, 90000);
+	cbi_setl(&a, 90000);
 	cbi_sub(&c, &a, &b);
 	CU_ASSERT_STRING_EQUAL("90100", cbi_tocstr(&c, buf));
 
@@ -115,7 +115,7 @@ void mult_test()
 	cbi_init(&b);
 	cbi_init(&c);
 
-	cbi_set(&a, 999);
+	cbi_setl(&a, 999);
 	cbi_mult(&c, &a, &b);
 	CU_ASSERT_STRING_EQUAL("0", cbi_tocstr(&c, buf));
 
@@ -125,20 +125,20 @@ void mult_test()
 	cbi_mult(&c, &a, &a);
 	CU_ASSERT_STRING_EQUAL("998001", cbi_tocstr(&c, buf));
 
-	cbi_set(&b, 1);
+	cbi_setl(&b, 1);
 	cbi_mult(&c, &a, &b);
 	CU_ASSERT_STRING_EQUAL("999", cbi_tocstr(&c, buf));
 
-	cbi_set(&b, 1);
+	cbi_setl(&b, 1);
 	cbi_mult(&c, &b, &a);
 	CU_ASSERT_STRING_EQUAL("999", cbi_tocstr(&c, buf));
 
-	cbi_set(&a, -999);
-	cbi_set(&b, 100);
+	cbi_setl(&a, -999);
+	cbi_setl(&b, 100);
 	cbi_mult(&c, &a, &b);
 	CU_ASSERT_STRING_EQUAL("-99900", cbi_tocstr(&c, buf));
 
-	cbi_set(&b, -100);
+	cbi_setl(&b, -100);
 	cbi_mult(&c, &a, &b);
 	CU_ASSERT_STRING_EQUAL("99900", cbi_tocstr(&c, buf));
 
@@ -154,34 +154,34 @@ void div_test()
 	cbigint p = { 0 };
 	char buf[1024];
 	
-	cbi_set(&a, 9900);
-	cbi_set(&b, 100);
+	cbi_setl(&a, 9900);
+	cbi_setl(&b, 100);
 	cbi_div(&p, &a, &b);
 	cbi_tocstr(&p, buf);
 	CU_ASSERT_STRING_EQUAL("99", buf);
 
-	cbi_set(&a, 1001);
-	cbi_set(&b, 99);
+	cbi_setl(&a, 1001);
+	cbi_setl(&b, 99);
 	cbi_div(&p, &a, &b);
 	CU_ASSERT_STRING_EQUAL("10", cbi_tocstr(&p, buf));
 
-	cbi_set(&a, 1000);
-	cbi_set(&b, 10);
+	cbi_setl(&a, 1000);
+	cbi_setl(&b, 10);
 	cbi_div(&p, &a, &b);
 	CU_ASSERT_STRING_EQUAL("100", cbi_tocstr(&p, buf));
 
-	cbi_set(&a, 1200);
-	cbi_set(&b, 10);
+	cbi_setl(&a, 1200);
+	cbi_setl(&b, 10);
 	cbi_div(&p, &a, &b);
 	CU_ASSERT_STRING_EQUAL("120", cbi_tocstr(&p, buf));
 
-	cbi_set(&a, 3040000);
-	cbi_set(&b, 303);
+	cbi_setl(&a, 3040000);
+	cbi_setl(&b, 303);
 	cbi_div(&p, &a, &b);
 	CU_ASSERT_STRING_EQUAL("10033", cbi_tocstr(&p, buf));
 
-	cbi_set(&a, 3030000);
-	cbi_set(&b, 303);
+	cbi_setl(&a, 3030000);
+	cbi_setl(&b, 303);
 	cbi_div(&p, &a, &b);
 	CU_ASSERT_STRING_EQUAL("10000", cbi_tocstr(&p, buf));
 
@@ -198,11 +198,11 @@ void pow_test()
 	cbi_init(&a);
 	cbi_init(&b);
 
-	cbi_set(&a, 2);
+	cbi_setl(&a, 2);
 	cbi_powl(&b, &a, 100);
 	CU_ASSERT_STRING_EQUAL("1267650600228229401496703205376", cbi_tocstr(&b, buf));
 
-	cbi_set(&a, 3);
+	cbi_setl(&a, 3);
 	cbi_powl(&b, &a, 71);
 	CU_ASSERT_STRING_EQUAL("7509466514979724803946715958257547", cbi_tocstr(&b, buf));
 	cbi_free(&a);
@@ -236,7 +236,7 @@ void set_test()
 	cbigint a = { 0 };
 	cbigint b = { 0 };
 
-	cbi_set(&a, 12345);
+	cbi_setl(&a, 12345);
 
 	char buf[1000];
 	cbi_tocstr(&a, buf);
@@ -244,34 +244,34 @@ void set_test()
 	CU_ASSERT_STRING_EQUAL("12345", buf);
 
 	long t = LONG_MAX - 100;
-	cbi_set(&a, 123456789012345678);
+	cbi_setl(&a, 123456789012345678);
 
-	cbi_set(&b, 10000000000);
+	cbi_setl(&b, 10000000000);
 	cbi_add(&a, &a, &b);
 
 	cbi_tocstr(&a, buf);
 	CU_ASSERT_STRING_EQUAL("123456799012345678", buf);
 
-	cbi_set(&a, 0);
+	cbi_setl(&a, 0);
 	cbi_add(&a, &a, &b);
 	cbi_tocstr(&a, buf);
 	CU_ASSERT_STRING_EQUAL("10000000000", buf);
 
-	cbi_set(&a, -10000000000);
+	cbi_setl(&a, -10000000000);
 	cbi_add(&a, &a, &b);
 	cbi_tocstr(&a, buf);
 	CU_ASSERT_STRING_EQUAL("0", buf);
 
-	cbi_set(&a, -9999999995);
+	cbi_setl(&a, -9999999995);
 	cbi_add(&a, &a, &b);
 	cbi_tocstr(&a, buf);
 	CU_ASSERT_STRING_EQUAL("5", buf);
 
-	cbi_set(&a, 100000000000);
+	cbi_setl(&a, 100000000000);
 	cbi_tocstr(&a, buf);
 	CU_ASSERT_STRING_EQUAL("100000000000", buf);
 
-	cbi_set(&a, CBI_BASE);
+	cbi_setl(&a, CBI_BASE);
 	cbi_tocstr(&a, buf);
 	CU_ASSERT_STRING_EQUAL(xstr(CBI_BASE), buf);
 	CU_ASSERT_EQUAL(a.mag.size, 2);
@@ -338,10 +338,10 @@ void arithmetic_test()
 		cbi_sub(&c, &a, &a);
 		fprintf(fout, "%s\n\n", cbi_tocstr(&c, num_buf));
 
-		cbi_set(&tmp1, 3);
+		cbi_setl(&tmp1, 3);
 		cbi_mult(&tmp1, &a, &tmp1);
 
-		cbi_set(&tmp2, 2);
+		cbi_setl(&tmp2, 2);
 		cbi_mult(&tmp2, &tmp2, &b);
 
 		cbi_sub(&c, &tmp1, &tmp2);
@@ -359,12 +359,12 @@ void arithmetic_test()
 		// a^4
 		cbi_mult(&tmp1, &tmp1, &tmp1);
 
-		cbi_set(&c, 9);
+		cbi_setl(&c, 9);
 		cbi_mult(&tmp1, &tmp1, &c);
 
 		// b^5
 		cbi_mult(&tmp2, cbi_mult(&tmp2, &tmp2, &tmp2), &b);
-		cbi_set(&c, 16);
+		cbi_setl(&c, 16);
 		cbi_mult(&tmp2, &tmp2, &c);
 
 		// 9a^4 + 16b^5

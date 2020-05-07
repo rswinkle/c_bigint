@@ -12,10 +12,10 @@
 // It'd be 10^4 for a 32-bit long
 //
 // lower powers, 1 and 2 are good for testing/rooting out bugs
-#define CBI_POWER 1
-#define CBI_BASE 10
-//#define CBI_POWER 9
-//#define CBI_BASE 1000000000
+//#define CBI_POWER 1
+//#define CBI_BASE 10
+#define CBI_POWER 9
+#define CBI_BASE 1000000000
 
 #define cbi_maxstrlen(n) ((n)->mag.size*CBI_POWER+2)
 
@@ -36,7 +36,8 @@ int cbi_compare_mag(cbigint* a, cbigint* b);
 
 // hmm
 int cbi_zero(cbigint* n);
-int cbi_set(cbigint* n, long a);
+int cbi_setl(cbigint* n, long a);
+int cbi_set(cbigint* n, cbigint* a);
 int cbi_reserve(cbigint* n, size_t size);
 
 void cbi_negate(cbigint* n);

@@ -89,7 +89,7 @@ int cbi_zero(cbigint* n)
 }
 
 // TODO change to using uint64_t?  or unsigned long?
-int cbi_set(cbigint* n, long a)
+int cbi_setl(cbigint* n, long a)
 {
 	// TODO error if a > CBI_BASE, have to break up
 	n->mag.size = 0;
@@ -108,6 +108,14 @@ int cbi_set(cbigint* n, long a)
 		a /= CBI_BASE;
 	}
 	return cvec_insert_long(&n->mag, 0, a);
+}
+
+// both n and a are initialized, whether capacity is 0 or not
+int cbi_set(cbigint* n, cbigint* a)
+{
+	n->mag.size = 0;
+	n->sign = a->sign;
+	return cvec_insert_array_long(&n->mag, 0, a->mag.a, a->mag.size);
 }
 
 // both of these are unecessary but for completionist/convenience sake
@@ -758,7 +766,7 @@ cbigint* cbi_powl(cbigint* e, cbigint* a, unsigned long x)
 cbigint* cbi_addl(cbigint* s, long x)
 {
 	cbigint a = { 0 };
-	cbi_set(&a, x);
+	cbi_setl(&a, x);
 	cbi_add(s, s, &a);
 	cvec_free_long(&a.mag);
 	return s;
@@ -766,7 +774,7 @@ cbigint* cbi_addl(cbigint* s, long x)
 cbigint* cbi_subl(cbigint* d, long x)
 {
 	cbigint a = { 0 };
-	cbi_set(&a, x);
+	cbi_setl(&a, x);
 	cbi_sub(d, d, &a);
 	cvec_free_long(&a.mag);
 	return d;
@@ -774,7 +782,7 @@ cbigint* cbi_subl(cbigint* d, long x)
 cbigint* cbi_multl(cbigint* p, long x)
 {
 	cbigint a = { 0 };
-	cbi_set(&a, x);
+	cbi_setl(&a, x);
 	cbi_mult(p, p, &a);
 	cvec_free_long(&a.mag);
 	return p;
@@ -782,7 +790,7 @@ cbigint* cbi_multl(cbigint* p, long x)
 cbigint* cbi_divl(cbigint* d, long x)
 {
 	cbigint a = { 0 };
-	cbi_set(&a, x);
+	cbi_setl(&a, x);
 	cbi_div(d, d, &a);
 	cvec_free_long(&a.mag);
 	return d;

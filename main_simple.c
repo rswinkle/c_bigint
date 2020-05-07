@@ -40,43 +40,43 @@ int main(int argc, char** argv)
 	cbi_div(&p, &hundred, &ten);
 	printf("%s / %s = %s\n", s_100, s_10, cbi_tocstr(&p, buf));
 
-	cbi_set(&a, 9900);
+	cbi_setl(&a, 9900);
 	cbi_div(&p, &a, &hundred);
 	printf("9900 / 100 = %s\n", cbi_tocstr(&p, buf));
 
-	cbi_set(&a, 1001);
-	cbi_set(&b, 99);
+	cbi_setl(&a, 1001);
+	cbi_setl(&b, 99);
 	cbi_div(&p, &a, &b);
 	printf("1001 / 99 = %s\n", cbi_tocstr(&p, buf));
 
-	cbi_set(&a, 1000);
-	cbi_set(&b, 10);
+	cbi_setl(&a, 1000);
+	cbi_setl(&b, 10);
 	cbi_div(&p, &a, &b);
 	printf("1000 / 10 = %s\n", cbi_tocstr(&p, buf));
 
-	cbi_set(&a, 1200);
-	cbi_set(&b, 10);
+	cbi_setl(&a, 1200);
+	cbi_setl(&b, 10);
 	cbi_div(&p, &a, &b);
 	printf("1200 / 10 = %s\n", cbi_tocstr(&p, buf));
 
-	cbi_set(&a, 3040000);
-	cbi_set(&b, 303);
+	cbi_setl(&a, 3040000);
+	cbi_setl(&b, 303);
 	cbi_div(&p, &a, &b);
 	printf("3040000 / 303 = %s\n", cbi_tocstr(&p, buf));
 
-	cbi_set(&a, 3030000);
-	cbi_set(&b, 303);
+	cbi_setl(&a, 3030000);
+	cbi_setl(&b, 303);
 	cbi_div(&p, &a, &b);
 	printf("3030000 / 303 = %s\n", cbi_tocstr(&p, buf));
 
-	cbi_set(&a, 10);
-	//cbi_set(&b, 1);
+	cbi_setl(&a, 10);
+	//cbi_setl(&b, 1);
 	cbigint c = { 0 };
-	cbi_set(&c, 1);
+	cbi_setl(&c, 1);
 	cbi_mult(&a, &a, &c);
 	printf("10 * 1 = %s\n", cbi_tocstr(&a, buf));
 
-	cbi_set(&a, 2);
+	cbi_setl(&a, 2);
 	cbi_powl(&c, &a, 1000);
 	printf("2^1000 = %s\n", cbi_tocstr(&c, buf));
 

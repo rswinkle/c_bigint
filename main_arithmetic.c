@@ -52,10 +52,10 @@ int main(int argc, char** argv)
 		cbi_sub(&c, &a, &a);
 		fprintf(fout, "%s\n\n", cbi_tocstr(&c, num_buf));
 
-		cbi_set(&tmp1, 3);
+		cbi_setl(&tmp1, 3);
 		cbi_mult(&tmp1, &a, &tmp1);
 
-		cbi_set(&tmp2, 2);
+		cbi_setl(&tmp2, 2);
 		cbi_mult(&tmp2, &tmp2, &b);
 
 		cbi_sub(&c, &tmp1, &tmp2);
@@ -73,12 +73,12 @@ int main(int argc, char** argv)
 		// a^4
 		cbi_mult(&tmp1, &tmp1, &tmp1);
 
-		cbi_set(&c, 9);
+		cbi_setl(&c, 9);
 		cbi_mult(&tmp1, &tmp1, &c);
 
 		// b^5
 		cbi_mult(&tmp2, cbi_mult(&tmp2, &tmp2, &tmp2), &b);
-		cbi_set(&c, 16);
+		cbi_setl(&c, 16);
 		cbi_mult(&tmp2, &tmp2, &c);
 
 		// 9a^4 + 16b^5
