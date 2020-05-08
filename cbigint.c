@@ -796,7 +796,49 @@ cbigint* cbi_divl(cbigint* d, long x)
 	return d;
 }
 
+cbigint* cbi_addll(cbigint* s, long a, long b)
+{
+	cbigint ba = { 0 }, bb = { 0 };
+	cbi_setl(&ba, a);
+	cbi_setl(&bb, b);
+	cbi_add(s, &ba, &bb);
+	cbi_free(&ba);
+	cbi_free(&bb);
+	return s;
+}
 
+cbigint* cbi_subll(cbigint* d, long a, long b)
+{
+	cbigint ba = { 0 }, bb = { 0 };
+	cbi_setl(&ba, a);
+	cbi_setl(&bb, b);
+	cbi_sub(d, &ba, &bb);
+	cbi_free(&ba);
+	cbi_free(&bb);
+	return d;
+}
+
+cbigint* cbi_multll(cbigint* p, long a, long b)
+{
+	cbigint ba = { 0 }, bb = { 0 };
+	cbi_setl(&ba, a);
+	cbi_setl(&bb, b);
+	cbi_mult(p, &ba, &bb);
+	cbi_free(&ba);
+	cbi_free(&bb);
+	return p;
+}
+
+cbigint* cbi_divll(cbigint* q, long a, long b)
+{
+	cbigint ba = { 0 }, bb = { 0 };
+	cbi_setl(&ba, a);
+	cbi_setl(&bb, b);
+	cbi_div(q, &ba, &bb);
+	cbi_free(&ba);
+	cbi_free(&bb);
+	return q;
+}
 
 
 
