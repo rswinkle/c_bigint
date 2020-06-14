@@ -24,24 +24,22 @@ void cbi_free(void* n)
 	tmp->sign = 0;
 }
 
-// return dst?
-// 
-// TODO change cvector library so copy functions
-// return int, better documentation comment about how
-// it assumes dest and source are valid pointers to vectors
-// but that dest has capacity 0.  Or for the latter part,
-// change copy so that it handles the > 0 capacity case
-// 
-// Also why cvec_long_copy not cvec_copy_long?  Every other cvec
-// function ends with the _type.
+// assumes dest and src are valid pointers and dest->mag.capacity
+// is 0 (ie dest->mag.a is unallocated)
+int cbi_copyc(cbigint* dest, cbigint* src)
+{
+	dest->mag.a = NULL;
+	dest->mag.size = 0;
+	dest->mag.capacity = 0;
+
+	return cbi_copy(dest, src);
+}
+
+// works even if dest->mag.a is allocated
 int cbi_copy(cbigint* dest, cbigint* src)
 {
-	cvec_long_copy(&dest->mag, &src->mag);
 	dest->sign = src->sign;
-
-	// hackish way to test for success of copy function
-	// works because copy sets cap to 0 before attempting allocation
-	return dest->mag.capacity == src->mag.capacity;
+	return cvec_copy_long(&dest->mag, &src->mag);
 }
 
 int cbi_compare(cbigint* a, cbigint* b)
@@ -322,8 +320,8 @@ char* cbi_tocstr(cbigint* n, char* out)
 cbigint* cbi_add(cbigint* s, cbigint* a_in, cbigint* b_in)
 {
 	cbigint a, b;
-	cbi_copy(&a, a_in);
-	cbi_copy(&b, b_in);
+	cbi_copyc(&a, a_in);
+	cbi_copyc(&b, b_in);
 
 	s->mag.size = 0;
 
@@ -405,8 +403,8 @@ cbigint* cbi_add(cbigint* s, cbigint* a_in, cbigint* b_in)
 cbigint* cbi_sub(cbigint* d, cbigint* a_in, cbigint* b_in)
 {
 	cbigint a, b;
-	cbi_copy(&a, a_in);
-	cbi_copy(&b, b_in);
+	cbi_copyc(&a, a_in);
+	cbi_copyc(&b, b_in);
 
 	d->mag.size = 0;
 
@@ -516,8 +514,8 @@ cbigint* cbi_mult(cbigint* p, cbigint* a_in, cbigint* b_in)
 
 	// could have early out for 1 too
 
-	cbi_copy(&a, a_in);
-	cbi_copy(&b, b_in);
+	cbi_copyc(&a, a_in);
+	cbi_copyc(&b, b_in);
 
 	// TODO sooo, all the operations require p to be initialized I guess
 	cbi_zero(p); // ?
@@ -639,8 +637,8 @@ cbigint* cbi_div(cbigint* q, cbigint* a_in, cbigint* b_in)
 		return q;
 	}
 
-	cbi_copy(&a, a_in);
-	cbi_copy(&b, b_in);
+	cbi_copyc(&a, a_in);
+	cbi_copyc(&b, b_in);
 
 	cvec_reserve_long(&q->mag, a.mag.size);
 
@@ -664,10 +662,10 @@ cbigint* cbi_div(cbigint* q, cbigint* a_in, cbigint* b_in)
 
 	do {
 
-		// TODO create cbi_copy()/cvec_copy that doesn't assume cap == 0
-		tmp.mag.size = 0;
 		tmp.sign = 1;
-		cvec_insert_array_long(&tmp.mag, 0, b.mag.a, b.mag.size);
+		cvec_copy_long(&tmp.mag, &b.mag);
+		//tmp.mag.size = 0;
+		//cvec_insert_array_long(&tmp.mag, 0, b.mag.a, b.mag.size);
 
 		if (cmp < 0) {
 			cvec_push_long(&dividend_part.mag, a.mag.a[i++]);
