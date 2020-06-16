@@ -205,6 +205,40 @@ void pow_test()
 	cbi_setl(&a, 3);
 	cbi_powl(&b, &a, 71);
 	CU_ASSERT_STRING_EQUAL("7509466514979724803946715958257547", cbi_tocstr(&b, buf));
+
+	cbi_setl(&a, -2);
+	cbi_powl(&b, &a, 100);
+	CU_ASSERT_STRING_EQUAL("1267650600228229401496703205376", cbi_tocstr(&b, buf));
+
+	cbi_setl(&a, -3);
+	cbi_powl(&b, &a, 71);
+	CU_ASSERT_STRING_EQUAL("-7509466514979724803946715958257547", cbi_tocstr(&b, buf));
+
+
+	cbi_setl(&a, -1);
+	cbi_powl(&b, &a, 100);
+	CU_ASSERT_STRING_EQUAL("1", cbi_tocstr(&b, buf));
+
+	cbi_setl(&a, -1);
+	cbi_powl(&b, &a, 71);
+	CU_ASSERT_STRING_EQUAL("-1", cbi_tocstr(&b, buf));
+
+	cbi_setl(&a, 1);
+	cbi_powl(&b, &a, 100);
+	CU_ASSERT_STRING_EQUAL("1", cbi_tocstr(&b, buf));
+
+	cbi_setl(&a, 1);
+	cbi_powl(&b, &a, 71);
+	CU_ASSERT_STRING_EQUAL("1", cbi_tocstr(&b, buf));
+
+	cbi_setl(&a, 0);
+	cbi_powl(&b, &a, 100);
+	CU_ASSERT_STRING_EQUAL("0", cbi_tocstr(&b, buf));
+
+	cbi_setl(&a, 0);
+	cbi_powl(&b, &a, 71);
+	CU_ASSERT_STRING_EQUAL("0", cbi_tocstr(&b, buf));
+
 	cbi_free(&a);
 	cbi_free(&b);
 }

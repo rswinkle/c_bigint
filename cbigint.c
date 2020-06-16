@@ -78,7 +78,8 @@ int cbi_compare_mag(cbigint* a, cbigint* b)
 // can/should I use the comma operator to "return" n?
 #define cbi_abs(n) (((n)->sign = (n)->sign ? 1 : 0), n)
 
-// hmm return int, could fail
+// hmm return int, could fail.
+// could also just assume size > 0 and do n->mag.a[n->mag.size=1] = 0
 int cbi_zero(cbigint* n)
 {
 	n->mag.size = 0;
@@ -86,10 +87,8 @@ int cbi_zero(cbigint* n)
 	return cvec_push_long(&n->mag, 0);
 }
 
-// TODO change to using uint64_t?  or unsigned long?
 int cbi_setl(cbigint* n, long a)
 {
-	// TODO error if a > CBI_BASE, have to break up
 	n->mag.size = 0;
 	n->sign = 0;
 	if (!a)
@@ -108,7 +107,12 @@ int cbi_setl(cbigint* n, long a)
 	return cvec_insert_long(&n->mag, 0, a);
 }
 
-// both n and a are initialized, whether capacity is 0 or not
+// TODO make cvec_copy_long not do an allocation unless necessary
+// and only allocate src->size or size + CVEC_long_sz not src->capacity
+// basically make it do what the following function does (minus the sign)
+//
+// both n and a are initialized, ie mag->capacity is 0 and ->a is NULL
+// or cap > 0 and a is valid
 int cbi_set(cbigint* n, cbigint* a)
 {
 	n->mag.size = 0;
@@ -720,12 +724,20 @@ cbigint* cbi_div(cbigint* q, cbigint* a_in, cbigint* b_in)
 // maybe I should have cbi_pow(cbi* e, long, cbi* x)?
 cbigint* cbi_pow(cbigint* e, cbigint* a, cbigint* x)
 {
-	return NULL;
+	//if (x->mag )
+	if (!x->sign) {
+		e->mag.size = 0;
+		e->sign = 1;
+		cvec_push_long(&e->mag, 1);
+		return e;
+	}
+
+	return e;
 }
 
-// TODO testing
 cbigint* cbi_powl(cbigint* e, cbigint* a, unsigned long x)
 {
+	// a^0 == 1
 	if (!x) {
 		e->mag.size = 0;
 		e->sign = 1;
@@ -733,10 +745,11 @@ cbigint* cbi_powl(cbigint* e, cbigint* a, unsigned long x)
 		return e;
 	}
 
-	e->mag.size = 0;
-	e->sign = 1;
-	cvec_insert_array_long(&e->mag, 0, a->mag.a, a->mag.size);
-	if (x == 1) {
+	cbi_set(e, a);
+	e->sign = (a->sign == 1 || (a->sign == -1 && !(x % 2))) ? 1 : a->sign;
+
+	// a^1 == a, [-1,1]^x = +- a already set with propers sign above
+	if (x == 1 || (a->mag.size == 1 && a->mag.a[0] <= 1)) {
 		return e;
 	}
 	
