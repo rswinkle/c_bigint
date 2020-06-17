@@ -24,7 +24,7 @@ CU_TestInfo op_tests[] = {
 CU_TestInfo general_tests[] = {
 //	{ "arithmetic",        arithmetic_test },
 	{ "set",               set_test },
-	{ "tolong",            tolong_test },
+	{ "tol",               tol_test },
 	{ "fromcstr",          fromcstr_test },
 	{ "compare",           compare_test },
 

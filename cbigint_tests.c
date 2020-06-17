@@ -314,7 +314,7 @@ void set_test()
 	cbi_free(&b);
 }
 
-void tolong_test()
+void tol_test()
 {
 	cbigint a = { 0 };
 	cbigint b;
@@ -326,10 +326,10 @@ void tolong_test()
 	sprintf(buf, "%ld", t);
 	cbi_initfromcstr(&b, buf);
 
-	long al = cbi_tolong(&a);
+	long al = cbi_tol(&a);
 	CU_ASSERT_EQUAL(al, 12345);
 
-	long bl = cbi_tolong(&b);
+	long bl = cbi_tol(&b);
 	CU_ASSERT_EQUAL(bl, t);
 
 	cbi_setl(&a, -12345);
@@ -337,10 +337,10 @@ void tolong_test()
 	sprintf(buf, "%ld", LONG_MIN);
 	cbi_fromcstr(&b, buf);
 
-	al = cbi_tolong(&a);
+	al = cbi_tol(&a);
 	CU_ASSERT_EQUAL(al, -12345);
 
-	bl = cbi_tolong(&b);
+	bl = cbi_tol(&b);
 	CU_ASSERT_EQUAL(bl, LONG_MIN);
 
 	cbi_free(&a);

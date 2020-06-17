@@ -109,6 +109,44 @@ int cbi_setl(cbigint* n, long a)
 	return cvec_insert_long(&n->mag, 0, a);
 }
 
+// TODO assumes n->mag is NULL or valid, ie n is initialized properly
+int cbi_setul(cbigint* n, unsigned long a)
+{
+	n->mag.size = 0;
+	n->sign = 0;
+	if (!a)
+		return cvec_push_long(&n->mag, 0);
+
+	n->sign = 1;
+	while (a >= CBI_BASE) {
+		if (!cvec_insert_long(&n->mag, 0, a % CBI_BASE))
+			return 0;
+		a /= CBI_BASE;
+	}
+	return cvec_insert_long(&n->mag, 0, a);
+}
+
+// TODO assumes n->mag is NULL or valid, ie n is initialized properly
+int cbi_setll(cbigint* n, long long a)
+{
+	n->mag.size = 0;
+	n->sign = 0;
+	if (!a)
+		return cvec_push_long(&n->mag, 0);
+
+	n->sign = 1;
+	if (a < 0) {
+		a = -a;
+		n->sign = -1;
+	}
+	while (a >= CBI_BASE) {
+		if (!cvec_insert_long(&n->mag, 0, a % CBI_BASE))
+			return 0;
+		a /= CBI_BASE;
+	}
+	return cvec_insert_long(&n->mag, 0, a);
+}
+
 // TODO make cvec_copy_long not do an allocation unless necessary
 // and only allocate src->size or size + CVEC_long_sz not src->capacity
 // basically make it do what the following function does (minus the sign)
@@ -124,9 +162,40 @@ int cbi_set(cbigint* n, cbigint* a)
 
 // returns garbage if n > LONG_MAX
 // should I have a return parameter and a pass/fail return?
-long cbi_tolong(cbigint* n)
+long cbi_tol(cbigint* n)
 {
 	long ret = 0;
+	if (!n->mag.size)
+		return 0;
+	ret = n->mag.a[0];
+
+	for (int i = 1; i < n->mag.size; ++i) {
+		ret *= CBI_BASE;
+		ret += n->mag.a[i];
+	}
+
+	return (n->sign == -1) ? -ret : ret;
+}
+
+// assumes n is positive
+unsigned long cbi_toul(cbigint* n)
+{
+	unsigned long ret = 0;
+	if (!n->mag.size)
+		return 0;
+	ret = n->mag.a[0];
+
+	for (int i = 1; i < n->mag.size; ++i) {
+		ret *= CBI_BASE;
+		ret += n->mag.a[i];
+	}
+
+	return ret;
+}
+
+long long cbi_toll(cbigint* n)
+{
+	long long ret = 0;
 	if (!n->mag.size)
 		return 0;
 	ret = n->mag.a[0];
@@ -740,19 +809,53 @@ cbigint* cbi_div(cbigint* q, cbigint* a_in, cbigint* b_in)
 }
 
 // TODO hard to imagine dealing with numbers big enough...
-// maybe I should have cbi_pow(cbi* e, long, cbi* x)?
+// maybe I should have cbi_pow(cbi* e, long, unsigned long)?
 cbigint* cbi_pow(cbigint* e, cbigint* a, cbigint* x)
 {
-	cbigint lmax = { 0 };
-	cbi_setl(&lmax, LONG_MAX);
+	cbigint ulmax = { 0 };
+	cbi_setul(&ulmax, ULONG_MAX);
+
+	if (x->sign == -1)
+		return NULL;
+
+	if (cbi_compare_mag(&ulmax, x) >= 0) {
+		return cbi_powl(e, a, cbi_toul(x));
+	}
+
+	cbi_set(e, a);
+	e->sign = (a->sign == 1 || (a->sign == -1 && !(x->mag.a[0] % 2))) ? 1 : a->sign;
+
+	// [-1,1]^x = +- a already set with propers sign above
+	if (a->mag.size == 1 && a->mag.a[0] <= 1) {
+		return e;
+	}
+
+	return NULL;
 
 	/*
-	if (cbi_compare_mag(lmax, x) >= 0) {
-		return cbi_powl(e, a, );
+	 * I'm not even sure it's worth doing supporting this since the result would
+	 * take forever with the exponent larger than LONG_MAX
+
+	cbigint save = { 0 };
+	cbi_copy(&save, &x);
+
+	cbigint pow2 = { 0 };
+	cbi_setl(&pow2, 1);
+
+	while (x > 1) {
+		cbi_mult(e, e, e);
+		x >>= 1;
+		pow2 <<= 1;
 	}
-	*/
+	save -= pow2;
+	while (save > 0) {
+		cbi_mult(e, e, a);
+		save--;
+	}
+
 
 	return e;
+	*/
 }
 
 cbigint* cbi_powl(cbigint* e, cbigint* a, unsigned long x)
