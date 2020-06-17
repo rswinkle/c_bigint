@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <limits.h>
 
 // cbi_init0() ?
 int cbi_init(cbigint* n)
@@ -87,6 +88,7 @@ int cbi_zero(cbigint* n)
 	return cvec_push_long(&n->mag, 0);
 }
 
+// TODO assumes n->mag is NULL or valid, ie n is initialized properly
 int cbi_setl(cbigint* n, long a)
 {
 	n->mag.size = 0;
@@ -118,6 +120,23 @@ int cbi_set(cbigint* n, cbigint* a)
 	n->mag.size = 0;
 	n->sign = a->sign;
 	return cvec_insert_array_long(&n->mag, 0, a->mag.a, a->mag.size);
+}
+
+// returns garbage if n > LONG_MAX
+// should I have a return parameter and a pass/fail return?
+long cbi_tolong(cbigint* n)
+{
+	long ret = 0;
+	if (!n->mag.size)
+		return 0;
+	ret = n->mag.a[0];
+
+	for (int i = 1; i < n->mag.size; ++i) {
+		ret *= CBI_BASE;
+		ret += n->mag.a[i];
+	}
+
+	return (n->sign == -1) ? -ret : ret;
 }
 
 // both of these are unecessary but for completionist/convenience sake
@@ -651,7 +670,7 @@ cbigint* cbi_div(cbigint* q, cbigint* a_in, cbigint* b_in)
 	//there is some simpler-to-program equivalent on the tip
 	//of my brain
 	
-	int i = 0, j = 0;
+	int i = 0;
 	long cut;
 	cbigint dividend_part, tmp;
 	dividend_part.sign = tmp.sign = 1;
@@ -724,13 +743,14 @@ cbigint* cbi_div(cbigint* q, cbigint* a_in, cbigint* b_in)
 // maybe I should have cbi_pow(cbi* e, long, cbi* x)?
 cbigint* cbi_pow(cbigint* e, cbigint* a, cbigint* x)
 {
-	//if (x->mag )
-	if (!x->sign) {
-		e->mag.size = 0;
-		e->sign = 1;
-		cvec_push_long(&e->mag, 1);
-		return e;
+	cbigint lmax = { 0 };
+	cbi_setl(&lmax, LONG_MAX);
+
+	/*
+	if (cbi_compare_mag(lmax, x) >= 0) {
+		return cbi_powl(e, a, );
 	}
+	*/
 
 	return e;
 }

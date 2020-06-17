@@ -38,6 +38,7 @@ int cbi_compare_mag(cbigint* a, cbigint* b);
 int cbi_zero(cbigint* n);
 int cbi_setl(cbigint* n, long a);
 int cbi_set(cbigint* n, cbigint* a);
+long cbi_tolong(cbigint* n);
 int cbi_reserve(cbigint* n, size_t size);
 
 void cbi_negate(cbigint* n);

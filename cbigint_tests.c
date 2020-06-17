@@ -314,6 +314,39 @@ void set_test()
 	cbi_free(&b);
 }
 
+void tolong_test()
+{
+	cbigint a = { 0 };
+	cbigint b;
+	char buf[1000];
+	long t = LONG_MAX - 100;
+
+	cbi_setl(&a, 12345);
+
+	sprintf(buf, "%ld", t);
+	cbi_initfromcstr(&b, buf);
+
+	long al = cbi_tolong(&a);
+	CU_ASSERT_EQUAL(al, 12345);
+
+	long bl = cbi_tolong(&b);
+	CU_ASSERT_EQUAL(bl, t);
+
+	cbi_setl(&a, -12345);
+
+	sprintf(buf, "%ld", LONG_MIN);
+	cbi_fromcstr(&b, buf);
+
+	al = cbi_tolong(&a);
+	CU_ASSERT_EQUAL(al, -12345);
+
+	bl = cbi_tolong(&b);
+	CU_ASSERT_EQUAL(bl, LONG_MIN);
+
+	cbi_free(&a);
+	cbi_free(&b);
+}
+
 void fromcstr_test()
 {
 	// TODO both varieties
