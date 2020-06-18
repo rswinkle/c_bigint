@@ -687,8 +687,8 @@ void cbi_safe_push(cbigint* n, long x)
 		;
 }
 
-// TODO reuse
-void cbi_normalize(cbigint* n)
+// TODO is this needed anywhere?
+static void cbi_normalize(cbigint* n)
 {
 	int i = 0;
 	while (i < n->mag.size-1 && !n->mag.a[i])
@@ -697,7 +697,8 @@ void cbi_normalize(cbigint* n)
 		cvec_erase_long(&n->mag, 0, i-1);
 }
 
-cbigint* cbi_div(cbigint* q, cbigint* a_in, cbigint* b_in)
+// name?  divrem?
+cbigint* cbi_divmod(cbigint* q, cbigint* a_in, cbigint* b_in, cbigint* rem)
 {
 	cbigint a, b;
 
@@ -800,12 +801,32 @@ cbigint* cbi_div(cbigint* q, cbigint* a_in, cbigint* b_in)
 
 	// dividend_part should contain the remainder, if I added that
 	// as an output parameter
+	if (rem) {
+		cbi_set(rem, &dividend_part);
+	}
+
+
 	cvec_free_long(&a.mag);
 	cvec_free_long(&b.mag);
 	cvec_free_long(&dividend_part.mag);
 	cvec_free_long(&tmp.mag);
 
 	return q;
+}
+
+// macro?
+cbigint* cbi_div(cbigint* q, cbigint* a_in, cbigint* b_in)
+{
+	return cbi_divmod(q, a_in, b_in, NULL);
+}
+
+// returns remainder.  name cbi_rem?
+cbigint* cbi_mod(cbigint* rem, cbigint* a_in, cbigint* b_in)
+{
+	cbigint q = { 0 };
+	cbi_divmod(&q, a_in, b_in, rem);
+	cbi_free(&q);
+	return rem;
 }
 
 // TODO hard to imagine dealing with numbers big enough...

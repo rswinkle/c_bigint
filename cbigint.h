@@ -60,6 +60,9 @@ cbigint* cbi_sub(cbigint* s, cbigint* a, cbigint* b);
 cbigint* cbi_mult(cbigint* s, cbigint* a, cbigint* b);
 cbigint* cbi_div(cbigint* s, cbigint* a, cbigint* b);
 
+cbigint* cbi_divmod(cbigint* q, cbigint* a_in, cbigint* b_in, cbigint* rem);
+cbigint* cbi_mod(cbigint* rem, cbigint* a_in, cbigint* b_in);
+
 cbigint* cbi_addl(cbigint* s, long x);
 cbigint* cbi_subl(cbigint* d, long x);
 cbigint* cbi_multl(cbigint* p, long x);
